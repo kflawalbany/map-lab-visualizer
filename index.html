@@ -58,11 +58,12 @@ body { background:#000000; color:#C4B8E8; font-family:'Inter',sans-serif; overfl
 #tooltip {
   position:fixed; z-index:500; background:rgba(8,4,16,.97);
   border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:13px 17px;
-  max-width:290px; pointer-events:none; opacity:0; transform:translateY(5px);
+  max-width:360px; pointer-events:none; opacity:0; transform:translateY(5px);
   transition:opacity .15s,transform .15s; backdrop-filter:blur(12px);
 }
 #tooltip.visible { opacity:1; transform:translateY(0); }
-.tt-cit   { font-size:.77rem; font-weight:600; margin-bottom:5px; letter-spacing:.4px; }
+.tt-authors{ font-size:.72rem; font-weight:600; margin-bottom:3px; line-height:1.4; }
+.tt-journal{ font-size:.68rem; font-style:italic; margin-bottom:6px; color:#A896D4; }
 .tt-title { font-size:.82rem; line-height:1.55; color:#C4B8E8; }
 .tt-bridge{ font-size:.69rem; margin-top:7px; font-style:italic; }
 .tt-theme { font-size:.66rem; margin-top:6px; color:#4a3c68; text-transform:uppercase; letter-spacing:1px; }
@@ -112,7 +113,8 @@ body { background:#000000; color:#C4B8E8; font-family:'Inter',sans-serif; overfl
 }
 .pl-item:hover { background:rgba(255,255,255,.08); }
 .pl-item[data-doi] { cursor:pointer; }
-.pl-meta  { font-size:.62rem; margin-bottom:3px; font-style:italic; }
+.pl-meta  { font-size:.62rem; margin-bottom:2px; }
+.pl-journal{ font-size:.61rem; font-style:italic; color:#A896D4; margin-bottom:3px; }
 .pl-title { font-size:.67rem; color:#9a8ec0; line-height:1.45; }
 
 @keyframes hub-pulse {
@@ -165,12 +167,13 @@ body { background:#000000; color:#C4B8E8; font-family:'Inter',sans-serif; overfl
 <div id="sidebar"><h3>Themes</h3></div>
 <svg id="main-svg"></svg>
 <div id="tooltip">
-  <div class="tt-cit"    id="tt-cit"></div>
-  <div class="tt-title"  id="tt-title"></div>
-  <div class="tt-bridge" id="tt-bridge" style="display:none"></div>
-  <div class="tt-theme"  id="tt-theme"></div>
-  <div class="tt-cite"   id="tt-cite"  style="display:none"></div>
-  <div class="tt-click"  id="tt-click"></div>
+  <div class="tt-authors" id="tt-authors"></div>
+  <div class="tt-journal" id="tt-journal"></div>
+  <div class="tt-title"   id="tt-title"></div>
+  <div class="tt-bridge"  id="tt-bridge" style="display:none"></div>
+  <div class="tt-theme"   id="tt-theme"></div>
+  <div class="tt-cite"    id="tt-cite"  style="display:none"></div>
+  <div class="tt-click"   id="tt-click"></div>
 </div>
 <script>
 // ── STARS ──────────────────────────────────────────────────────────────────
@@ -258,7 +261,7 @@ const MENTEE_PAPERS = new Set([21, 28, 32, 38, 40, 41]);
 
 // ── CO-AUTHOR DATA (all named collaborators per paper, excl. Law) ──────────
 const COAUTHORS = {
-  1:  ['Muraven','Buczny'],
+  1:  ['Buczny','Law'],
   2:  ['Fowler','Gaesser'],
   3:  ['Campbell','Gaesser'],
   4:  ['Syropoulos','Young'],
@@ -279,7 +282,7 @@ const COAUTHORS = {
   19: ['Young','Syropoulos'],
   20: ['Wang','Syropoulos'],
   21: ['Manalili','Signorini','Chukwudebe','Amormino','Markowitz','Young','Syropoulos'],
-  22: ['Markowitz','Mazzuchi','Syropoulos','Young'],
+  22: ['Mazzuchi','Syropoulos','Law','Young'],
   23: ['Syropoulos','Crimston','Markowitz','Milfont','Rottman'],
   24: ['Wylie','Kraft-Todd','Liang','Young','Syropoulos'],
   25: ['Syropoulos','Amormino','Marsh','Young',"O'Connor"],
@@ -288,32 +291,83 @@ const COAUTHORS = {
   28: ['Capuano','Syropoulos'],
   29: ['Wu','Syropoulos','Perry'],
   30: ['Syropoulos','Amormino','Marsh','Young',"O'Connor"],
-  31: ['Syropoulos','Capozzoli','DesRoches'],
+  31: ['Capozzoli','Law','DesRoches'],
   32: ['Bauer','Young','Amormino','Marsh',"O'Connor",'Syropoulos'],
   33: ['Janssen','Prem','Syropoulos','Siddiqi'],
   34: ['Syropoulos','Li','Leidner','Young'],
   35: ['Syropoulos','Coleman','Gainsburg',"O'Connor"],
   36: ['Syropoulos',"O'Connor",'Young'],
   37: ['Young','Syropoulos'],
-  38: ['Bae','Syropoulos',"O'Connor",'Amormino','Crimston','Bastian','Marsh','Young'],
+  38: ['Syropoulos','Law',"O'Connor",'Amormino','Crimston','Bastian','Marsh','Young'],
   39: ['Fowler','Bontkes','Srivastava','Oveis','Palombo',"O'Connor"],
   40: ['Capozzoli','Syropoulos'],
   41: ['Wang','Young','Syropoulos'],
 };
 
-// ── INSTITUTIONS ───────────────────────────────────────────────────────────
-const INSTITUTIONS = [
-  { id:'albany', name:'University at Albany',       abbr:'Albany', color:'#8B5E9A', years:'2019–2023' },
-  { id:'bc',     name:'Boston College',             abbr:'BC',     color:'#A259C4', years:'2024' },
-  { id:'asu',    name:'Arizona State University',   abbr:'ASU',    color:'#E8A050', years:'2025–present' },
-];
-const institMap = {};
-INSTITUTIONS.forEach(i => institMap[i.id] = i);
+// ── AUTHOR INITIALS (add new collaborators here when needed) ──────────────
+const INITIALS = {
+  'Law':'K. F.', 'Syropoulos':'S.', 'Young':'L.', 'Gaesser':'B.',
+  'Marsh':'A.', 'Amormino':'P.', "O'Connor":'B.', 'Fowler':'D.',
+  'Markowitz':'E. M.', 'Manalili':'M.', 'Capuano':'G.', 'Coleman':'J.',
+  'Kraft-Todd':'G.', 'Mah':'M.', 'Crimston':'D.', 'Milfont':'T. L.',
+  'Rottman':'J.', 'Wylie':'B.', 'Liang':'J.', 'Wang':'Z.',
+  'Colaizzi':'G.', 'Earp':'B. D.', 'Leidner':'B.', 'Mazzuchi':'G.',
+  'Gittle':'N.', 'Wu':'K.', 'Perry':'S.', 'DesRoches':'T.',
+  'Capozzoli':'M.', 'Li':'J.', 'Gainsburg':'I.', 'Janssen':'J.',
+  'Prem':'M.', 'Siddiqi':'A.', 'Bae':'J.', 'Bastian':'B.',
+  'Bontkes':'J.', 'Srivastava':'S.', 'Oveis':'C.', 'Palombo':'D.',
+  'Muraven':'M.', 'Buczny':'J.', 'Bauer':'F.', 'Signorini':'V.',
+  'Chukwudebe':'C.', 'Campbell':'T.', 'Markowitz':'E. M.',
+};
 
-function getAffil(year) {
-  if (year <= 2023) return 'albany';
-  if (year <= 2024) return 'bc';
-  return 'asu';
+// ── FULL JOURNAL NAMES ─────────────────────────────────────────────────────
+const JOURNAL_NAMES = {
+  'PNAS Nex': 'PNAS Nexus',
+  'PSPB':     'Personality and Social Psychology Bulletin',
+  'PID':      'Personality and Individual Differences',
+  'BJSP':     'British Journal of Social Psychology',
+  'GPIR':     'Group Processes & Intergroup Relations',
+  'JEP':      'Journal of Environmental Psychology',
+  'Sci Rep':  'Scientific Reports',
+  'J Ind D':  'Journal of Individual Differences',
+  'TiCS':     'Trends in Cognitive Sciences',
+  'Psych Sci':'Psychological Science',
+  'J Med E':  'Journal of Medical Ethics',
+  'npj CA':   'npj Climate Action',
+  'BMC Psy':  'BMC Psychology',
+  'COBS':     'Current Opinion in Behavioral Sciences',
+  'Sustain.': 'Sustainability',
+  'SPPS':     'Social Psychological and Personality Science',
+  'SPPC':     'Social and Personality Psychology Compass',
+  'Futures':  'Futures',
+  'PNAS':     'Proceedings of the National Academy of Sciences',
+  'P&C':      'Peace and Conflict',
+  'Adv Psy':  'Advances in Psychology',
+  'Space P':  'Space Policy',
+  'Emotion':  'Emotion',
+  'Soc Cog':  'Social Cognition',
+  'OHB HM':   'Oxford Handbook of Human Motivation',
+};
+
+// ── APA HELPERS ────────────────────────────────────────────────────────────
+function buildAuthorStr(p) {
+  const coList = COAUTHORS[p.n] || [];
+  let names;
+  if (p.first === 'Law') {
+    names = ['Law', ...coList];
+  } else if (coList.includes('Law')) {
+    names = [p.first, ...coList];
+  } else {
+    names = [p.first, 'Law', ...coList.filter(n => n !== p.first)];
+  }
+  const fmt = names.map(n => INITIALS[n] ? `${n}, ${INITIALS[n]}` : n);
+  if (fmt.length === 1) return fmt[0];
+  if (fmt.length === 2) return `${fmt[0]} & ${fmt[1]}`;
+  return fmt.slice(0, -1).join(', ') + ', & ' + fmt[fmt.length - 1];
+}
+function buildAPA(p) {
+  const journal = JOURNAL_NAMES[p.abbr] || p.abbr;
+  return `${buildAuthorStr(p)} (${p.year}). ${p.title}. <em>${journal}</em>.`;
 }
 
 // ── PAPERS ─────────────────────────────────────────────────────────────────
@@ -402,22 +456,6 @@ sidebar.appendChild(ct);
 const cn = document.createElement('div');
 cn.id='conn-note'; cn.innerHTML='Dashed arcs connect papers bridging two themes.<br><span style="color:#4a3c68">'+ Object.keys(BRIDGES).length +' bridging papers found.</span>';
 sidebar.appendChild(cn);
-
-const iSep = document.createElement('div');
-iSep.className='tool-sep';
-const iHdr = document.createElement('h3');
-iHdr.textContent='Institutions';
-iSep.appendChild(iHdr);
-sidebar.appendChild(iSep);
-
-INSTITUTIONS.forEach(inst => {
-  const cnt = PAPERS.filter(p => getAffil(p.year) === inst.id).length;
-  const btn = document.createElement('button');
-  btn.className='theme-btn'; btn.dataset.institution=inst.id;
-  btn.innerHTML=`<span class="btn-icon" style="color:${inst.color}">🏛</span><span class="btn-label" style="line-height:1.2"><span style="font-size:.78rem">${inst.abbr}</span><br><span style="font-size:.58rem;color:#5a4a80">${inst.years}</span></span><span class="btn-count">${cnt}</span>`;
-  btn.onclick=()=>filterInstitution(inst.id);
-  sidebar.appendChild(btn);
-});
 
 const toolSep = document.createElement('div');
 toolSep.className='tool-sep';
@@ -688,7 +726,6 @@ const nodes = PAPERS.map(p => ({
   cites:    CITES[p.n] ?? null,
   isLast:   LAST_PAPERS.has(p.n),
   isMentee: MENTEE_PAPERS.has(p.n),
-  affil:    getAffil(p.year),
   x: themeMap[p.theme].hx + (Math.random()-.5)*80,
   y: themeMap[p.theme].hy + (Math.random()-.5)*80,
 }));
@@ -835,9 +872,10 @@ function updateBridges() {
 const tip = document.getElementById('tooltip');
 function showTip(ev,d) {
   const t = themeMap[d.theme];
-  const el = document.getElementById('tt-cit');
-  el.textContent=`(${d.first}, ${d.year}, ${d.abbr})`;
-  el.style.color=t.color;
+  const authEl = document.getElementById('tt-authors');
+  authEl.textContent=`${buildAuthorStr(d)} (${d.year}).`;
+  authEl.style.color=t.color;
+  document.getElementById('tt-journal').textContent=JOURNAL_NAMES[d.abbr]||d.abbr;
   document.getElementById('tt-title').textContent=d.title;
   const be = document.getElementById('tt-bridge');
   if (d.bridge) { be.style.display='block'; be.style.color=themeMap[d.bridge.secondary].color; be.textContent=`Bridge: ${d.bridge.note}`; }
@@ -853,19 +891,18 @@ function showTip(ev,d) {
 function moveTip(ev) {
   if (isMobile) return;
   let x=ev.clientX+16, y=ev.clientY-12;
-  if(x+300>W) x=ev.clientX-315;
+  if(x+360>W) x=ev.clientX-375;
   if(y+200>H) y=H-205;
   tip.style.left=x+'px'; tip.style.top=y+'px';
 }
 function hideTip() { tip.classList.remove('visible'); }
 
 // ── FILTER ──────────────────────────────────────────────────────────────────
-let activeTheme=null, activeInstitution=null, showConn=false;
+let activeTheme=null, showConn=false;
 
 function nodeOpacity(d) {
   if (typeof menteeMode !== 'undefined' && menteeMode && !d.isMentee) return 0.06;
   if (activeTheme         && d.theme !== activeTheme)        return 0.06;
-  if (activeInstitution   && d.affil !== activeInstitution)  return 0.06;
   if (typeof activeCollaborator !== 'undefined' && activeCollaborator && !(COAUTHORS[d.n]||[]).includes(activeCollaborator)) return 0.06;
   const inp = document.getElementById('search-input');
   if (inp) {
@@ -899,8 +936,7 @@ function resetFilter() {
   sim.force('x',d3.forceX(d=>themeMap[d.theme].hx).strength(0.16))
      .force('y',d3.forceY(d=>themeMap[d.theme].hy).strength(0.16))
      .alpha(0.3).restart();
-  if (activeInstitution) showInstitutionList(activeInstitution);
-  else hidePaperList();
+  hidePaperList();
 }
 function toggleConn() {
   showConn=!showConn;
@@ -909,49 +945,6 @@ function toggleConn() {
   cn.classList.toggle('visible',showConn);
   if(showConn){ if(!bridgePaths) buildBridges(); gBridge.style('display',null); updateBridges(); }
   else gBridge.style('display','none');
-}
-
-function filterInstitution(iid) {
-  if (activeInstitution === iid) { resetInstitution(); return; }
-  activeInstitution = iid;
-  document.querySelectorAll('.theme-btn[data-institution]').forEach(b => b.classList.toggle('active', b.dataset.institution === iid));
-  refreshOpacity();
-  showInstitutionList(iid);
-}
-function resetInstitution() {
-  activeInstitution = null;
-  document.querySelectorAll('.theme-btn[data-institution]').forEach(b => b.classList.remove('active'));
-  refreshOpacity();
-  hidePaperList();
-}
-function showInstitutionList(iid) {
-  const inst = institMap[iid];
-  const papers = PAPERS.filter(p => getAffil(p.year) === iid).sort((a,b) => b.year - a.year || a.first.localeCompare(b.first));
-  panel.innerHTML = '';
-  const back = document.createElement('button');
-  back.id = 'pl-back'; back.innerHTML = '← All institutions'; back.onclick = resetInstitution;
-  panel.appendChild(back);
-  const hdr = document.createElement('div');
-  hdr.id = 'pl-heading'; hdr.style.color = inst.color;
-  hdr.textContent = `🏛 ${inst.name}`;
-  panel.appendChild(hdr);
-  const totalCites = papers.reduce((s,p) => s + (CITES[p.n] || 0), 0);
-  const cnt = document.createElement('div');
-  cnt.id = 'pl-count';
-  cnt.innerHTML = `${papers.length} papers &nbsp;·&nbsp; <span style="color:${inst.color};opacity:.8">${totalCites.toLocaleString()} total citations</span>`;
-  panel.appendChild(cnt);
-  papers.forEach(p => {
-    const item = document.createElement('div');
-    item.className = 'pl-item';
-    if (p.doi) item.dataset.doi = '1';
-    const tc = themeMap[p.theme].color;
-    const lawMark = p.first === 'Law' ? `<span style="color:${tc};opacity:.7"> ★</span>` : '';
-    const citeStr = CITES[p.n] != null ? `<span style="color:${tc};opacity:.6;float:right">${CITES[p.n]} cit.</span>` : '';
-    item.innerHTML = `<div class="pl-meta" style="color:${tc}">${p.first}${lawMark}, ${p.year} · ${p.abbr}${citeStr}</div><div class="pl-title">${p.title}</div>`;
-    if (p.doi) item.onclick = () => window.open(p.doi, '_blank');
-    panel.appendChild(item);
-  });
-  panel.classList.add('visible');
 }
 
 let menteeMode = false;
@@ -1015,7 +1008,7 @@ function toggleTrajectory() {
 
 let collabMode = false, activeCollaborator = null;
 const collabCounts = {};
-Object.values(COAUTHORS).forEach(arr => arr.forEach(name => { collabCounts[name] = (collabCounts[name] || 0) + 1; }));
+Object.values(COAUTHORS).forEach(arr => arr.forEach(name => { if (name !== 'Law') collabCounts[name] = (collabCounts[name] || 0) + 1; }));
 const TOP_COLLABS = Object.entries(collabCounts).sort((a,b) => b[1]-a[1]).slice(0,10);
 
 function buildCollabList() {
@@ -1070,7 +1063,7 @@ function filterByCollaborator(name) {
     if (p.doi) item.dataset.doi = '1';
     const tc = themeMap[p.theme].color;
     const citeStr = CITES[p.n] != null ? `<span style="color:${tc};opacity:.6;float:right">${CITES[p.n]} cit.</span>` : '';
-    item.innerHTML = `<div class="pl-meta" style="color:${tc}">${p.year} · ${p.abbr}${citeStr}</div><div class="pl-title">${p.title}</div>`;
+    item.innerHTML = `<div class="pl-meta" style="color:${tc}">${buildAuthorStr(p)} (${p.year}).${citeStr}</div><div class="pl-journal">${JOURNAL_NAMES[p.abbr]||p.abbr}</div><div class="pl-title">${p.title}</div>`;
     if (p.doi) item.onclick = () => window.open(p.doi, '_blank');
     panel.appendChild(item);
   });
@@ -1110,9 +1103,8 @@ function showPaperList(tid) {
     const item=document.createElement('div');
     item.className='pl-item';
     if(p.doi) item.dataset.doi='1';
-    const lawMark = p.first==='Law' ? `<span style="color:${t.color};opacity:.7"> ★</span>` : '';
     const citeStr = CITES[p.n] != null ? `<span style="color:${t.color};opacity:.6;float:right">${CITES[p.n]} cit.</span>` : '';
-    item.innerHTML=`<div class="pl-meta" style="color:${t.color}">${p.first}${lawMark}, ${p.year} · ${p.abbr}${citeStr}</div><div class="pl-title">${p.title}</div>`;
+    item.innerHTML=`<div class="pl-meta" style="color:${t.color}">${buildAuthorStr(p)} (${p.year}).${citeStr}</div><div class="pl-journal">${JOURNAL_NAMES[p.abbr]||p.abbr}</div><div class="pl-title">${p.title}</div>`;
     if(p.doi) item.onclick=()=>window.open(p.doi,'_blank');
     panel.appendChild(item);
   });
