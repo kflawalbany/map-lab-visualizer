@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kyle Fiore Law — Research Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000000; color:#C4B8E8; font-family:'Inter',sans-serif; overflow:hidden; height:100vh; width:100vw; }
+#canvas-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+#main-svg  { position:relative; z-index:1; display:block; }
+
+#header {
+  position:fixed; top:0; left:0; right:0; padding:14px 32px 8px;
+  z-index:200; background:linear-gradient(to bottom,rgba(0,0,0,.97) 55%,transparent);
+}
+#header h1 { font-size:1.25rem; font-weight:500; letter-spacing:5px; color:#ffffff; font-family:'Inter',sans-serif; }
+#header p  { font-size:.7rem; color:#4a3c68; letter-spacing:2px; margin-top:2px; }
+
+#sidebar {
+  position:fixed; left:0; top:68px; bottom:0; width:210px; z-index:150;
+  padding:12px 10px; background:linear-gradient(to right,rgba(0,0,0,.96) 78%,transparent);
+  display:flex; flex-direction:column; gap:5px; overflow-y:auto;
+}
+#sidebar h3 {
+  font-size:.65rem; letter-spacing:3.5px; color:#E896C8;
+  text-transform:uppercase; margin:0 0 11px 1px; flex-shrink:0;
+}
+#sidebar > h3 { margin-top:8px; }
+.theme-btn {
+  display:flex; align-items:center; gap:9px; padding:8px 11px;
+  border:1px solid rgba(255,255,255,.05); border-radius:24px;
+  background:rgba(255,255,255,.025); cursor:pointer; font-family:'Inter',sans-serif;
+  font-size:.7rem; color:#7a6a9a; transition:all .2s; text-align:left;
+}
+.theme-btn:hover { background:rgba(255,255,255,.07); color:#C4B8E8; }
+.theme-btn.active { background:rgba(255,255,255,.11); color:#fff; border-color:rgba(255,255,255,.14); }
+.btn-icon  { font-size:1rem; flex-shrink:0; width:20px; text-align:center; }
+.btn-label { flex:1; line-height:1.3; }
+.btn-count { font-size:.62rem; color:#4a3c68; background:rgba(255,255,255,.05); padding:2px 7px; border-radius:9px; }
+.theme-btn.active .btn-count { color:#8a7ab8; }
+
+#conn-toggle {
+  margin-top:22px; padding:8px 11px; border:1px solid rgba(255,255,255,.09);
+  border-radius:24px; background:rgba(255,255,255,.04); cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:.68rem; color:#6a5a8a; letter-spacing:.5px;
+  transition:all .2s; text-align:center;
+}
+#conn-toggle:hover { background:rgba(255,255,255,.09); color:#C4B8E8; }
+#conn-toggle.on { background:rgba(232,150,200,.1); color:#E896C8; border-color:rgba(232,150,200,.25); }
+#conn-note { margin-top:5px; font-size:.62rem; color:#4a3c68; line-height:1.6; padding:0 3px; display:none; }
+#conn-note.visible { display:block; }
+
+#tooltip {
+  position:fixed; z-index:500; background:rgba(8,4,16,.97);
+  border:1px solid rgba(255,255,255,.1); border-radius:10px; padding:13px 17px;
+  max-width:290px; pointer-events:none; opacity:0; transform:translateY(5px);
+  transition:opacity .15s,transform .15s; backdrop-filter:blur(12px);
+}
+#tooltip.visible { opacity:1; transform:translateY(0); }
+.tt-cit   { font-size:.77rem; font-weight:600; margin-bottom:5px; letter-spacing:.4px; }
+.tt-title { font-size:.82rem; line-height:1.55; color:#C4B8E8; }
+.tt-bridge{ font-size:.69rem; margin-top:7px; font-style:italic; }
+.tt-theme { font-size:.66rem; margin-top:6px; color:#4a3c68; text-transform:uppercase; letter-spacing:1px; }
+.tt-cite  { font-size:.68rem; margin-top:6px; color:#A896D4; }
+.tt-click { font-size:.66rem; margin-top:4px; color:#C878B0; }
+
+.tool-sep { margin-top:46px; margin-bottom:0; padding-top:16px; border-top:1px solid rgba(232,150,200,.13); flex-shrink:0; }
+.tool-btn {
+  display:flex; align-items:center; gap:8px; padding:7px 11px;
+  border:1px solid rgba(255,255,255,.07); border-radius:24px;
+  background:rgba(255,255,255,.03); cursor:pointer; font-family:'Inter',sans-serif;
+  font-size:.68rem; color:#6a5a8a; transition:all .2s; text-align:left; width:100%;
+}
+.tool-btn:hover { background:rgba(255,255,255,.09); color:#C4B8E8; }
+.tool-btn.on { background:rgba(232,150,200,.1); color:#E896C8; border-color:rgba(232,150,200,.25); }
+#search-input {
+  display:none; width:100%; padding:6px 10px; margin-top:4px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  border-radius:12px; color:#C4B8E8; font-family:'Inter',sans-serif; font-size:.7rem;
+  outline:none; transition:border-color .2s, background .2s;
+}
+#search-input.visible { display:block; }
+#search-input::placeholder { color:#4a3c68; }
+#search-input:focus { border-color:rgba(232,150,200,.35); background:rgba(255,255,255,.09); }
+
+
+#paper-list {
+  display:none; position:absolute; inset:0; z-index:20;
+  background:linear-gradient(to right,rgba(0,0,0,.98) 82%,transparent);
+  flex-direction:column; padding:10px 8px; overflow-y:auto; gap:0;
+}
+#paper-list.visible { display:flex; }
+#pl-back {
+  display:flex; align-items:center; gap:7px; flex-shrink:0;
+  padding:7px 11px; margin-bottom:8px;
+  border:1px solid rgba(255,255,255,.08); border-radius:20px;
+  background:transparent; cursor:pointer; width:100%;
+  font-family:'Inter',sans-serif; font-size:.68rem; color:#6a5a8a; transition:all .2s;
+}
+#pl-back:hover { color:#C4B8E8; background:rgba(255,255,255,.06); }
+#pl-heading { font-size:.62rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:5px; padding:0 4px; flex-shrink:0; }
+#pl-count   { font-size:.6rem; color:#4a3c68; letter-spacing:1px; margin-bottom:10px; padding:0 4px; flex-shrink:0; }
+.pl-item {
+  padding:7px 9px; border-radius:8px; margin-bottom:4px; flex-shrink:0;
+  border:1px solid rgba(255,255,255,.04); background:rgba(255,255,255,.02);
+  transition:background .15s;
+}
+.pl-item:hover { background:rgba(255,255,255,.08); }
+.pl-item[data-doi] { cursor:pointer; }
+.pl-meta  { font-size:.62rem; margin-bottom:3px; font-style:italic; }
+.pl-title { font-size:.67rem; color:#9a8ec0; line-height:1.45; }
+
+@keyframes hub-pulse {
+  0%,100% { stroke-opacity:.4; }
+  50%      { stroke-opacity:.8; }
+}
+.hub-pulse { animation: hub-pulse 3.5s ease-in-out infinite; }
+
+#sidebar-overlay {
+  display:none; position:fixed; inset:0; z-index:290;
+  background:rgba(0,0,0,.45);
+}
+#sidebar-overlay.visible { display:block; }
+#menu-btn {
+  display:none; position:fixed; top:12px; right:14px; z-index:400;
+  width:38px; height:38px; border-radius:8px;
+  background:rgba(16,8,32,.9); border:1px solid rgba(232,150,200,.3);
+  color:#E896C8; font-size:1.15rem; cursor:pointer;
+  align-items:center; justify-content:center; padding:0;
+  font-family:'Inter',sans-serif;
+}
+@media (max-width:767px) {
+  #header { padding:10px 58px 6px 16px; }
+  #header h1 { font-size:.9rem; letter-spacing:2px; }
+  #header p  { font-size:.56rem; }
+  #sidebar {
+    left:-230px; top:0; bottom:0; width:220px;
+    transition:left .25s ease; z-index:300;
+    background:rgba(0,0,0,.98); padding-top:56px;
+    border-right:1px solid rgba(232,150,200,.12);
+  }
+  #sidebar.open { left:0; }
+  #menu-btn { display:flex; }
+  #tooltip {
+    left:10px !important; right:10px !important;
+    bottom:16px !important; top:auto !important; max-width:none;
+  }
+
+}
+</style>
+</head>
+<body>
+<canvas id="canvas-bg"></canvas>
+<button id="menu-btn">☰</button>
+<div id="sidebar-overlay"></div>
+<div id="header">
+  <h1>MAP LAB</h1>
+  <p>MORALITY, ALTRUISM &amp; PROSOCIALITY &mdash; 41 PUBLICATIONS</p>
+</div>
+<div id="sidebar"><h3>Themes</h3></div>
+<svg id="main-svg"></svg>
+<div id="tooltip">
+  <div class="tt-cit"    id="tt-cit"></div>
+  <div class="tt-title"  id="tt-title"></div>
+  <div class="tt-bridge" id="tt-bridge" style="display:none"></div>
+  <div class="tt-theme"  id="tt-theme"></div>
+  <div class="tt-cite"   id="tt-cite"  style="display:none"></div>
+  <div class="tt-click"  id="tt-click"></div>
+</div>
+<script>
+// ── STARS ──────────────────────────────────────────────────────────────────
+const cvs = document.getElementById('canvas-bg'), ctx = cvs.getContext('2d');
+let stars = [];
+function initStars() {
+  cvs.width = innerWidth; cvs.height = innerHeight;
+  stars = Array.from({length:220}, () => ({
+    x:Math.random()*cvs.width, y:Math.random()*cvs.height,
+    r:Math.random()*1.2+.2, a:Math.random()*.4+.08,
+    spd:(Math.random()*.4+.06)*(Math.random()<.5?1:-1)
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  stars.forEach(s => {
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(196,184,232,${s.a})`; ctx.fill();
+    s.a += s.spd*.007; if(s.a>.6||s.a<.05) s.spd*=-1;
+  });
+  requestAnimationFrame(drawStars);
+}
+initStars(); drawStars();
+window.addEventListener('resize', initStars);
+
+// ── THEMES ─────────────────────────────────────────────────────────────────
+const THEMES = [
+  { id:'special',  color:'#C4A8DC', name:'Special\nPopulations',            icon:'◇', tagline:'Extraordinary altruists and high-impact giving',      row:0, col:0 },
+  { id:'typical',  color:'#9AB4D8', name:'Typical\nPopulations',            icon:'◯', tagline:'Moral concern across everyday social distance',           row:0, col:1 },
+  { id:'intergen', color:'#DCA8BC', name:'Intergenerational\nDivide',       icon:'⌛', tagline:'Protecting future people across all time',                 row:0, col:2 },
+  { id:'embedded', color:'#9AC0B4', name:'Embedded\nMorality',              icon:'⊕', tagline:'How context and identity shape moral action',             row:1, col:0 },
+  { id:'applied',  color:'#C8B880', name:'Applied Research\n& Intervention',icon:'⊙', tagline:'Evidence-based interventions for real-world change',      row:1, col:2 },
+];
+const themeMap = {};
+THEMES.forEach(t => themeMap[t.id] = t);
+
+// ── BRIDGE CONNECTIONS ─────────────────────────────────────────────────────
+const BRIDGES = {
+  // special papers bridging to other themes
+  2:  { secondary:'typical',   note:'Equitable empathy as the ethical foundation of impartial prosociality' },
+  3:  { secondary:'intergen',  note:'Perceived benevolence of effective altruism varies with temporal and social distance' },
+  6:  { secondary:'typical',   note:'Ethical reasoning and empathic bias as complementary prosocial capacities' },
+  25: { secondary:'typical',   note:'The moral architecture underlying extraordinary and everyday prosociality' },
+  32: { secondary:'intergen',  note:'Concern for future generations predicts extraordinary present-day prosociality' },
+  38: { secondary:'embedded',  note:'Altruistic legacy motives and their cultural variation worldwide' },
+  // typical papers bridging to other themes
+  22: { secondary:'embedded',  note:'Obituary values reveal the embedded moral architecture of human life' },
+  23: { secondary:'intergen',  note:'Moral expansiveness bridges care for nature and future generations' },
+  24: { secondary:'embedded',  note:'Skepticism of public virtue motivations reflects embedded moral norms' },
+  28: { secondary:'special',   note:'Expanding ingroup boundaries fuels extraordinary distant altruism' },
+  40: { secondary:'intergen',  note:'Future generations occupy the lowest rungs of the moral hierarchy' },
+  // intergen papers bridging to other themes
+  9:  { secondary:'applied',   note:'Longtermist concern for the far future catalyzes pro-climate action' },
+  10: { secondary:'typical',   note:'Moral regard for others extends across temporal and social distance' },
+  12: { secondary:'special',   note:'Personality predicts exceptional intergenerational concern and giving' },
+  18: { secondary:'special',   note:'Impartial intergenerational beneficence mirrors extraordinary altruism' },
+  19: { secondary:'typical',   note:'Expanding multigenerational moral concern through targeted intervention' },
+  21: { secondary:'special',   note:'Protecting future generations as a source of meaning and well-being' },
+  35: { secondary:'typical',   note:'The moral circle must expand across time, not just social space' },
+  36: { secondary:'typical',   note:'Temporal distance reshapes how we value lives across generations' },
+  // embedded papers bridging to other themes
+  31: { secondary:'applied',   note:'Ecological humility as a moral orientation applicable to environmental intervention' },
+  // applied papers bridging to other themes
+  7:  { secondary:'intergen',  note:'Longtermist education interventions increase concern for future generations' },
+  8:  { secondary:'intergen',  note:'Intergenerational concern relates to constructive climate coping' },
+  16: { secondary:'intergen',  note:'Intergenerational responsibility as a climate strategy across divides' },
+  20: { secondary:'intergen',  note:'Responsibility for future generations predicts climate mitigation behavior' },
+  39: { secondary:'special',   note:'Co-imagination of future experiences fosters shared prosocial emotions' },
+};
+
+// ── CITATION COUNTS (from Google Scholar, April 2026) ─────────────────────
+const CITES = {
+  1:140, 2:90,  3:94,  4:25,  5:8,   6:19,  7:32,  8:20,  9:36,
+  10:50, 11:0,  12:25, 13:2,  14:11, 15:8,  16:29, 17:16, 18:42,
+  19:5,  20:0,  21:1,  22:2,  23:5,  24:0,  25:6,  26:3,  27:8,
+  28:1,  29:0,  30:4,  31:0,  32:1,  33:0,  34:0,  35:38, 36:15,
+  37:0,  38:0,  39:0,  40:2,  41:0,
+};
+
+// ── LAST-AUTHOR PAPERS ─────────────────────────────────────────────────────
+const LAST_PAPERS = new Set([]);
+
+// ── MENTEE PAPERS (†Law is mentor/co-mentor of first author) ──────────────
+const MENTEE_PAPERS = new Set([21, 28, 32, 38, 40, 41]);
+
+// ── CO-AUTHOR DATA (all named collaborators per paper, excl. Law) ──────────
+const COAUTHORS = {
+  1:  ['Muraven','Buczny'],
+  2:  ['Fowler','Gaesser'],
+  3:  ['Campbell','Gaesser'],
+  4:  ['Syropoulos','Young'],
+  5:  ['Syropoulos','Young'],
+  6:  ['Amormino','Marsh',"O'Connor"],
+  7:  ['Syropoulos','Young'],
+  8:  ['Syropoulos','Mah','Young'],
+  9:  ['Syropoulos','Young'],
+  10: ['Syropoulos','Young'],
+  11: ['Syropoulos','Leidner'],
+  12: ['Syropoulos','Amormino','Young'],
+  13: ['Syropoulos'],
+  14: ['Syropoulos','Earp'],
+  15: ['Syropoulos','Coleman','Young'],
+  16: ['Syropoulos','Kraft-Todd','Mah','Markowitz','Young'],
+  17: ['Colaizzi','Syropoulos'],
+  18: ['Syropoulos','Kraft-Todd','Young'],
+  19: ['Young','Syropoulos'],
+  20: ['Wang','Syropoulos'],
+  21: ['Manalili','Signorini','Chukwudebe','Amormino','Markowitz','Young','Syropoulos'],
+  22: ['Markowitz','Mazzuchi','Syropoulos','Young'],
+  23: ['Syropoulos','Crimston','Markowitz','Milfont','Rottman'],
+  24: ['Wylie','Kraft-Todd','Liang','Young','Syropoulos'],
+  25: ['Syropoulos','Amormino','Marsh','Young',"O'Connor"],
+  26: ['Syropoulos','Young',"O'Connor"],
+  27: ['Gittle','Young','Syropoulos'],
+  28: ['Capuano','Syropoulos'],
+  29: ['Wu','Syropoulos','Perry'],
+  30: ['Syropoulos','Amormino','Marsh','Young',"O'Connor"],
+  31: ['Syropoulos','Capozzoli','DesRoches'],
+  32: ['Bauer','Young','Amormino','Marsh',"O'Connor",'Syropoulos'],
+  33: ['Janssen','Prem','Syropoulos','Siddiqi'],
+  34: ['Syropoulos','Li','Leidner','Young'],
+  35: ['Syropoulos','Coleman','Gainsburg',"O'Connor"],
+  36: ['Syropoulos',"O'Connor",'Young'],
+  37: ['Young','Syropoulos'],
+  38: ['Bae','Syropoulos',"O'Connor",'Amormino','Crimston','Bastian','Marsh','Young'],
+  39: ['Fowler','Bontkes','Srivastava','Oveis','Palombo',"O'Connor"],
+  40: ['Capozzoli','Syropoulos'],
+  41: ['Wang','Young','Syropoulos'],
+};
+
+// ── INSTITUTIONS ───────────────────────────────────────────────────────────
+const INSTITUTIONS = [
+  { id:'albany', name:'University at Albany',       abbr:'Albany', color:'#8B5E9A', years:'2019–2023' },
+  { id:'bc',     name:'Boston College',             abbr:'BC',     color:'#A259C4', years:'2024' },
+  { id:'asu',    name:'Arizona State University',   abbr:'ASU',    color:'#E8A050', years:'2025–present' },
+];
+const institMap = {};
+INSTITUTIONS.forEach(i => institMap[i.id] = i);
+
+function getAffil(year) {
+  if (year <= 2023) return 'albany';
+  if (year <= 2024) return 'bc';
+  return 'asu';
+}
+
+// ── PAPERS ─────────────────────────────────────────────────────────────────
+// To add a new paper:
+//   1. Add an entry below in the correct theme section (copy the format).
+//      n: unique integer (increment from the last one used, currently 41 max)
+//      first: first author last name  |  year: publication year
+//      abbr: short journal name       |  theme: one of special/typical/intergen/embedded/applied
+//      title: full paper title        |  doi: full https://doi.org/... URL (use '' if preprint/no DOI yet)
+//   2. Update CITES above with the citation count: { ...existing..., 42:0, }
+//   3. Update the header count in the <p> tag near the top of this file.
+//   4. If the paper bridges a second theme, add to BRIDGES: { ...existing..., 42:{secondary:'typical', note:'...'} }
+//   5. If a mentee is first author, add the n to MENTEE_PAPERS.
+//
+// TEMPLATE (paste and fill in):
+//   {n:42, first:'Law', year:2026, abbr:'J XXX', theme:'special',
+//    title:'Full paper title here',
+//    doi:'https://doi.org/10.XXXX/XXXXXX'},
+//
+const PAPERS = [
+  // Special Populations (7 — extraordinary altruists, effective giving, high-impact prosociality)
+  {n:30,first:'Law',      year:2026,abbr:'PNAS Nex',  theme:'special',  title:'Reasoning and empathy are not competing but complementary features of altruism',doi:'https://doi.org/10.1093/pnasnexus/pgag015'},
+  {n:32,first:'Bauer',    year:2026,abbr:'BJSP',      theme:'special',  title:'Concern for future generations predicts costly present-day prosociality and extraordinary altruism: A case study of organ donorship',doi:'https://doi.org/10.1111/bjso.70070'},
+  {n:38,first:'Bae',      year:2026,abbr:'PID',       theme:'special',  title:'Altruistic, more than reputational concerns, drive legacy motives, values, and aspirations across the world',doi:'https://doi.org/10.1016/j.paid.2026.113804'},
+  {n:25,first:'Law',      year:2025,abbr:'PNAS Nex',  theme:'special',  title:'Mapping the moral architecture of effective and extraordinary altruism',doi:'https://doi.org/10.1093/pnasnexus/pgaf326'},
+  {n:6, first:'Law',      year:2024,abbr:'TiCS',      theme:'special',  title:'Ethical reasoning versus empathic bias: A false dichotomy?',doi:'https://doi.org/10.1016/j.tics.2023.10.006'},
+  {n:3, first:'Law',      year:2022,abbr:'PSPB',      theme:'special',  title:'Biased benevolence: The perceived morality of effective altruism across social distance',doi:'https://doi.org/10.1177/01461672211002773'},
+  {n:2, first:'Fowler',   year:2021,abbr:'Psych Sci', theme:'special',  title:'Against empathy bias: The moral value of equitable empathy',doi:'https://doi.org/10.1177/0956797620979965'},
+
+  // Typical Populations (6 — how ordinary people extend moral concern across social distance)
+  {n:41,first:'Wang',     year:2026,abbr:'Soc Cog',   theme:'typical',  title:'Investigating relationships between moral foundations and support for revenge',doi:'https://osf.io/preprints/psyarxiv/zkc65_v1'},
+  {n:40,first:'Capozzoli',year:2026,abbr:'GPIR',      theme:'typical',  title:'Future generations hold the lowest moral standing, even below present-day marginalized human and non-human outgroups',doi:'https://osf.io/preprints/psyarxiv/c9p8f_v1'},
+  {n:28,first:'Capuano',  year:2026,abbr:'SPPC',      theme:'typical',  title:'From tribe to humanity: How ingroup expansion can fuel distant altruism',doi:'https://doi.org/10.1111/spc3.70117'},
+  {n:24,first:'Law',      year:2025,abbr:'BJSP',      theme:'typical',  title:'People are more skeptical of others\' public virtue motivations than their own',doi:'https://doi.org/10.1111/bjso.70014'},
+  {n:23,first:'Law',      year:2025,abbr:'JEP',       theme:'typical',  title:'Cross-national insights into moral expansiveness: Selective valuation of nature versus humans',doi:'https://doi.org/10.1016/j.jenvp.2025.102778'},
+  {n:22,first:'Markowitz',year:2025,abbr:'PNAS',      theme:'typical',  title:'An exploration of basic human values in 38 million obituaries over 30 years',doi:'https://doi.org/10.1073/pnas.2510318122'},
+
+  // Intergenerational Divide (14 — future people, longtermism, intergenerational concern)
+  {n:37,first:'Law',      year:2026,abbr:'Futures',   theme:'intergen', title:'Americans underestimate national levels of concern for future generations: Evidence across collective, governmental and moral considerations',doi:'https://doi.org/10.1016/j.futures.2026.103819'},
+  {n:36,first:'Law',      year:2026,abbr:'PSPB',      theme:'intergen', title:'The probabilistic price of life across time: Generational and probabilistic distance render a life today worth more than ten tomorrow',doi:'https://doi.org/10.1177/01461672241303993'},
+  {n:35,first:'Law',      year:2026,abbr:'PSPB',      theme:'intergen', title:'Moral future-thinking: Does the moral circle stand the test of time?',doi:'https://doi.org/10.1177/01461672241284324'},
+  {n:26,first:'Law',      year:2025,abbr:'Sci Rep',   theme:'intergen', title:'Mapping prescriptive beliefs on seventh generation stewardship and increasing the temporal scope of intergenerational concern',doi:'https://doi.org/10.1038/s41598-025-21466-9'},
+  {n:21,first:'Manalili', year:2025,abbr:'J Ind D',   theme:'intergen', title:'The motivation to protect future generations as a source of meaning and mental well-being',doi:'https://doi.org/10.1027/1614-0001/a000443'},
+  {n:19,first:'Law',      year:2025,abbr:'BJSP',      theme:'intergen', title:'Cultivating multigenerational moral expansion: Interventions to increase concern for future generations',doi:'https://doi.org/10.1111/bjso.12892'},
+  {n:18,first:'Syropoulos',year:2025,abbr:'PSPB',     theme:'intergen', title:'Impartial intergenerational beneficence: The psychology of feeling equal concern for all future generations',doi:'https://doi.org/10.1177/01461672241307800'},
+  {n:15,first:'Law',      year:2025,abbr:'PID',       theme:'intergen', title:'A future beyond ourselves: Self-oriented prospection predicts increased intergenerational responsibility',doi:'https://doi.org/10.1016/j.paid.2024.112915'},
+  {n:14,first:'Law',      year:2024,abbr:'J Med E',   theme:'intergen', title:'Artificial intelligence, existential risk and equity: The need for multigenerational bioethics',doi:'https://doi.org/10.1136/jme-2024-110583'},
+  {n:12,first:'Syropoulos',year:2024,abbr:'PID',      theme:'intergen', title:'Mapping the personality of (exceptional) intergenerational concern',doi:'https://doi.org/10.1016/j.paid.2024.112814'},
+  {n:10,first:'Syropoulos',year:2024,abbr:'GPIR',     theme:'intergen', title:'Longtermism and moral regard across temporal and social distance',doi:'https://doi.org/10.1177/13684302241242115'},
+  {n:9, first:'Syropoulos',year:2024,abbr:'npj CA',   theme:'intergen', title:'The case for longtermism: Concern for the far future as a catalyst for pro-climate action',doi:'https://doi.org/10.1038/s44168-024-00110-8'},
+  {n:5, first:'Syropoulos',year:2024,abbr:'Sustain.', theme:'intergen', title:'National differences in age and future-oriented indicators relate to environmental performance',doi:'https://doi.org/10.3390/su16010276'},
+  {n:4, first:'Law',      year:2023,abbr:'Sustain.',  theme:'intergen', title:'Why do longtermists care about protecting the environment? Underlying mechanisms of pro-climate policy support',doi:'https://doi.org/10.3390/su152416732'},
+
+  // Embedded Morality (6 — context, identity, systems shaping moral behavior)
+  {n:34,first:'Syropoulos',year:2026,abbr:'GPIR',     theme:'embedded', title:'Presidential candidate endorsements by scientific journals decrease trust in science especially for moderate and conservative Americans',doi:'https://doi.org/10.1177/13684302261425955'},
+  {n:31,first:'Syropoulos',year:2026,abbr:'JEP',      theme:'embedded', title:'Ecological humility as a distinct moral orientation toward nature: Scale development and validation',doi:'https://doi.org/10.1016/j.jenvp.2026.102998'},
+  {n:29,first:'Wu',       year:2026,abbr:'Adv Psy',   theme:'embedded', title:'The politics of well-being during democratic backsliding: How partisan affiliation and support for government actions relate to happiness',doi:'https://doi.org/10.56296/aip00051'},
+  {n:13,first:'Syropoulos',year:2024,abbr:'P&C',      theme:'embedded', title:'Cultural tightness and its association with national levels of peace: Evidence from a cross-national investigation',doi:'https://doi.org/10.1037/pac0000725'},
+  {n:11,first:'Syropoulos',year:2024,abbr:'GPIR',     theme:'embedded', title:'Increased perceived safety in day-to-day life relates to critical national identification',doi:'https://doi.org/10.1177/13684302241249057'},
+  {n:1, first:'Muraven',  year:2019,abbr:'OHB HM',    theme:'embedded', title:'Ego depletion: Theory and evidence',doi:''},
+
+  // Applied Research & Intervention (8 — interventions and evidence for real-world change)
+  {n:39,first:'Fowler',   year:2026,abbr:'Emotion',   theme:'applied',  title:'Co-imagination fosters shared emotions of future experiences',doi:'https://doi.org/10.1037/emo0001659'},
+  {n:33,first:'Janssen',  year:2026,abbr:'Space P',   theme:'applied',  title:'Examining the meaning of sustainability on the Moon',doi:'https://doi.org/10.1016/j.spacepol.2026.101761'},
+  {n:20,first:'Law',      year:2025,abbr:'JEP',       theme:'applied',  title:'Responsibility for future generations and climate change mitigation: A cross-national study',doi:'https://doi.org/10.1016/j.jenvp.2025.102729'},
+  {n:17,first:'Law',      year:2025,abbr:'COBS',      theme:'applied',  title:'Climate change is an intergenerational challenge that requires intergenerationally focused behavioral solutions',doi:'https://doi.org/10.1016/j.cobeha.2024.101467'},
+  {n:16,first:'Syropoulos',year:2025,abbr:'BJSP',     theme:'applied',  title:'Responsibility to future generations: A strategy for combatting climate change across political divides',doi:'https://doi.org/10.1111/bjso.12775'},
+  {n:8, first:'Syropoulos',year:2024,abbr:'BMC Psy',  theme:'applied',  title:'Intergenerational concern relates to constructive coping and emotional reactions to climate change',doi:'https://doi.org/10.1186/s40359-024-01690-0'},
+  {n:7, first:'Syropoulos',year:2024,abbr:'SPPS',     theme:'applied',  title:'Longtermist education interventions increase concern for and action to protect future generations',doi:'https://doi.org/10.1177/19485506241228465'},
+  {n:27,first:'Law',      year:2025,abbr:'PSPB',      theme:'applied',  title:'Mapping and increasing Americans\' actual and perceived support for initiatives protecting future generations',doi:'https://doi.org/10.1177/01461672251384359'},
+];
+
+// ── SIDEBAR ────────────────────────────────────────────────────────────────
+const sidebar = document.getElementById('sidebar');
+THEMES.forEach(t => {
+  const cnt = PAPERS.filter(p=>p.theme===t.id).length;
+  const btn = document.createElement('button');
+  btn.className='theme-btn'; btn.dataset.theme=t.id;
+  btn.innerHTML=`<span class="btn-icon" style="color:${t.color}">${t.icon}</span><span class="btn-label">${t.name.replace('\n',' ')}</span><span class="btn-count">${cnt}</span>`;
+  btn.onclick=()=>filterTheme(t.id);
+  sidebar.appendChild(btn);
+});
+const ct = document.createElement('button');
+ct.id='conn-toggle'; ct.textContent='✦  Show Cross-Topic Bridges'; ct.onclick=toggleConn;
+sidebar.appendChild(ct);
+const cn = document.createElement('div');
+cn.id='conn-note'; cn.innerHTML='Dashed arcs connect papers bridging two themes.<br><span style="color:#4a3c68">'+ Object.keys(BRIDGES).length +' bridging papers found.</span>';
+sidebar.appendChild(cn);
+
+const iSep = document.createElement('div');
+iSep.className='tool-sep';
+const iHdr = document.createElement('h3');
+iHdr.textContent='Institutions';
+iSep.appendChild(iHdr);
+sidebar.appendChild(iSep);
+
+INSTITUTIONS.forEach(inst => {
+  const cnt = PAPERS.filter(p => getAffil(p.year) === inst.id).length;
+  const btn = document.createElement('button');
+  btn.className='theme-btn'; btn.dataset.institution=inst.id;
+  btn.innerHTML=`<span class="btn-icon" style="color:${inst.color}">🏛</span><span class="btn-label" style="line-height:1.2"><span style="font-size:.78rem">${inst.abbr}</span><br><span style="font-size:.58rem;color:#5a4a80">${inst.years}</span></span><span class="btn-count">${cnt}</span>`;
+  btn.onclick=()=>filterInstitution(inst.id);
+  sidebar.appendChild(btn);
+});
+
+const toolSep = document.createElement('div');
+toolSep.className='tool-sep';
+const toolHdr = document.createElement('h3');
+toolHdr.textContent='Tools';
+toolSep.appendChild(toolHdr);
+sidebar.appendChild(toolSep);
+
+const btnCite = document.createElement('button');
+btnCite.className='tool-btn'; btnCite.id='btn-cite';
+btnCite.innerHTML='<span style="font-size:.9rem">📊</span>&nbsp; Citation size';
+btnCite.onclick=toggleCiteMode;
+sidebar.appendChild(btnCite);
+
+const btnSearch = document.createElement('button');
+btnSearch.className='tool-btn'; btnSearch.id='btn-search';
+btnSearch.innerHTML='<span style="font-size:.9rem">🔍</span>&nbsp; Search Papers';
+btnSearch.onclick=toggleSearch;
+sidebar.appendChild(btnSearch);
+
+const searchInput = document.createElement('input');
+searchInput.type='text'; searchInput.id='search-input';
+searchInput.placeholder='Title, author, journal…';
+searchInput.oninput=()=>doSearch(searchInput.value);
+sidebar.appendChild(searchInput);
+
+const btnMentee = document.createElement('button');
+btnMentee.className='tool-btn'; btnMentee.id='btn-mentee';
+btnMentee.innerHTML='<span style="font-size:.9rem">🎓</span>&nbsp; Mentee papers';
+btnMentee.onclick=toggleMenteeMode;
+sidebar.appendChild(btnMentee);
+
+const btnTraj = document.createElement('button');
+btnTraj.className='tool-btn'; btnTraj.id='btn-traj';
+btnTraj.innerHTML='<span style="font-size:.9rem">→</span>&nbsp; Historical trajectory';
+btnTraj.onclick=toggleTrajectory;
+sidebar.appendChild(btnTraj);
+
+const btnCollab = document.createElement('button');
+btnCollab.className='tool-btn'; btnCollab.id='btn-collab';
+btnCollab.innerHTML='<span style="font-size:.9rem">👥</span>&nbsp; Top collaborators';
+btnCollab.onclick=showCollabPanel;
+sidebar.appendChild(btnCollab);
+
+const panel = document.createElement('div');
+panel.id='paper-list';
+sidebar.appendChild(panel);
+
+// ── SVG + LAYOUT ───────────────────────────────────────────────────────────
+const isMobile = innerWidth < 768 && navigator.maxTouchPoints > 0;
+const W = innerWidth, H = innerHeight;
+const SIDEBAR_W = isMobile ? 0 : 210;
+const HEADER_H  = isMobile ? 52 : 68;
+const numCols   = isMobile ? 2 : 3;
+const numRows   = isMobile ? 3 : 2;
+
+if (isMobile) {
+  const mLayout = { special:[0,0], typical:[0,1], intergen:[1,0], embedded:[1,1], applied:[2,0] };
+  THEMES.forEach(t => { [t.row, t.col] = mLayout[t.id]; });
+}
+
+const usW = W - SIDEBAR_W, usH = H - HEADER_H - 10;
+const colW = usW / numCols, rowH = usH / numRows;
+const HUB_R    = Math.min(colW * 0.40, rowH * 0.36);
+const ILLUST_R = HUB_R * 0.28;
+const PR = isMobile ? 10 : 16;
+const TITLE_FS = isMobile ? Math.max(10, HUB_R * 0.12) : Math.max(13, HUB_R * 0.095);
+const TAG_FS   = Math.max(13, HUB_R * 0.08);
+const RIM_GAP  = isMobile ? 7 : 13;
+const TXT_GAP  = isMobile ? 5 : 10;
+
+THEMES.forEach(t => {
+  t.hx = SIDEBAR_W + colW * (t.col + 0.5) + (isMobile ? 0 : (1 - t.col) * 11);
+  t.hy = HEADER_H  + rowH * (t.row + 0.5) + (isMobile ? 0 : (t.row === 0 ? 14 : -14));
+});
+
+const svg = d3.select('#main-svg').attr('width', W).attr('height', H);
+
+// ── DEFS ────────────────────────────────────────────────────────────────────
+const defs = svg.append('defs');
+
+THEMES.forEach(t => {
+  defs.append('clipPath').attr('id',`clip-${t.id}`)
+    .append('circle').attr('cx',t.hx).attr('cy',t.hy).attr('r',HUB_R-2);
+});
+
+THEMES.forEach(t => {
+  const f = defs.append('filter').attr('id',`gp-${t.id}`)
+    .attr('x','-100%').attr('y','-100%').attr('width','300%').attr('height','300%');
+  f.append('feGaussianBlur').attr('stdDeviation','4').attr('result','b');
+  const m = f.append('feMerge');
+  m.append('feMergeNode').attr('in','b');
+  m.append('feMergeNode').attr('in','SourceGraphic');
+});
+
+THEMES.forEach(t => {
+  const f = defs.append('filter').attr('id',`gh-${t.id}`)
+    .attr('x','-60%').attr('y','-60%').attr('width','220%').attr('height','220%');
+  f.append('feGaussianBlur').attr('stdDeviation','18').attr('result','b');
+  const m = f.append('feMerge');
+  m.append('feMergeNode').attr('in','b');
+  m.append('feMergeNode').attr('in','SourceGraphic');
+});
+
+THEMES.forEach(t => {
+  const g = defs.append('radialGradient').attr('id',`hbg-${t.id}`)
+    .attr('cx','50%').attr('cy','50%').attr('r','50%');
+  g.append('stop').attr('offset','0%').attr('stop-color',t.color).attr('stop-opacity',.13);
+  g.append('stop').attr('offset','70%').attr('stop-color',t.color).attr('stop-opacity',.06);
+  g.append('stop').attr('offset','100%').attr('stop-color',t.color).attr('stop-opacity',.02);
+});
+
+Object.entries(BRIDGES).forEach(([n,b]) => {
+  const paper = PAPERS.find(p=>p.n==n); if(!paper) return;
+  const g = defs.append('linearGradient').attr('id',`bg-${n}`)
+    .attr('gradientUnits','userSpaceOnUse');
+  g.append('stop').attr('offset','0%').attr('stop-color',themeMap[paper.theme].color).attr('stop-opacity',.8);
+  g.append('stop').attr('offset','100%').attr('stop-color',themeMap[b.secondary].color).attr('stop-opacity',.8);
+});
+
+// ── LAYER GROUPS ────────────────────────────────────────────────────────────
+const gBridge     = svg.append('g').attr('class','g-bridge').style('display','none');
+const gHubs       = svg.append('g').attr('class','g-hubs');
+const gPapers     = svg.append('g').attr('class','g-papers');
+const gTrajectory = svg.append('g').attr('class','g-traj').style('display','none');
+
+// ── HUB CIRCLES ─────────────────────────────────────────────────────────────
+const hubGs = gHubs.selectAll('g.hub').data(THEMES).join('g').attr('class','hub')
+  .attr('transform', t=>`translate(${t.hx},${t.hy})`)
+  .style('cursor','pointer')
+  .on('click', (_,t)=>filterTheme(t.id));
+
+hubGs.append('circle').attr('r',HUB_R)
+  .attr('fill', t=>`url(#hbg-${t.id})`)
+  .attr('filter', t=>`url(#gh-${t.id})`);
+
+hubGs.append('circle').attr('r',HUB_R)
+  .attr('class','hub-pulse')
+  .attr('fill','none')
+  .attr('stroke', t=>t.color)
+  .attr('stroke-opacity',.55)
+  .attr('stroke-width',2);
+
+hubGs.append('circle').attr('r',HUB_R-14)
+  .attr('fill','none').attr('stroke', t=>t.color)
+  .attr('stroke-opacity',.18).attr('stroke-width',1.2);
+
+hubGs.append('circle').attr('r',HUB_R-28)
+  .attr('fill','none').attr('stroke', t=>t.color)
+  .attr('stroke-opacity',.08).attr('stroke-width',.7);
+
+// ── ILLUSTRATIONS ──────────────────────────────────────────────────────────
+const IS = ILLUST_R / 38;
+hubGs.each(function(t) {
+  const g = d3.select(this).append('g').attr('transform',`scale(${IS})`);
+  const c = t.color;
+  const sw = 2.0 / IS;
+
+  if (t.id === 'special') {
+    // Heart outline
+    g.append('path')
+      .attr('d','M0,20 C-4,14 -24,4 -24,-10 C-24,-22 -14,-28 0,-16 C14,-28 24,-22 24,-10 C24,4 4,14 0,20 Z')
+      .attr('fill','none').attr('stroke',c).attr('stroke-width',sw).attr('stroke-linejoin','round').attr('stroke-linecap','round');
+
+  } else if (t.id === 'typical') {
+    // Three person silhouettes (outline)
+    [[-22, -2, 7], [0, -5, 9], [22, -2, 7]].forEach(([cx, cy, r]) => {
+      g.append('circle').attr('cx',cx).attr('cy',cy-r-2).attr('r',r).attr('fill','none').attr('stroke',c).attr('stroke-width',sw);
+      const bw = r*1.6, bh = r*1.8, by = cy+2;
+      g.append('path').attr('d',`M${cx-bw/2},${by+bh} Q${cx-bw/2},${by} ${cx},${by} Q${cx+bw/2},${by} ${cx+bw/2},${by+bh}`)
+        .attr('fill','none').attr('stroke',c).attr('stroke-width',sw).attr('stroke-linecap','round').attr('stroke-linejoin','round');
+    });
+
+  } else if (t.id === 'intergen') {
+    // Hourglass — two separate triangles
+    const hw = 22, hh = 32;
+    // Cap bars
+    g.append('line').attr('x1',-hw-4).attr('y1',-hh-2).attr('x2',hw+4).attr('y2',-hh-2).attr('stroke',c).attr('stroke-width',sw).attr('stroke-linecap','round');
+    g.append('line').attr('x1',-hw-4).attr('y1',hh+2).attr('x2',hw+4).attr('y2',hh+2).attr('stroke',c).attr('stroke-width',sw).attr('stroke-linecap','round');
+    // Top triangle (empty sand)
+    g.append('polygon').attr('points',`${-hw},${-hh} ${hw},${-hh} 0,0`)
+      .attr('fill',c).attr('fill-opacity',0.18).attr('stroke',c).attr('stroke-width',sw).attr('stroke-linejoin','round');
+    // Bottom triangle (filled sand)
+    g.append('polygon').attr('points',`0,0 ${-hw},${hh} ${hw},${hh}`)
+      .attr('fill',c).attr('fill-opacity',0.42).attr('stroke',c).attr('stroke-width',sw).attr('stroke-linejoin','round');
+    // Sand heap — brighter inner region in bottom triangle
+    g.append('polygon').attr('points',`0,6 ${-hw*.65},${hh} ${hw*.65},${hh}`)
+      .attr('fill',c).attr('fill-opacity',0.35).attr('stroke','none');
+
+  } else if (t.id === 'embedded') {
+    // Globe with meridian lines
+    g.append('circle').attr('cx',0).attr('cy',0).attr('r',26).attr('fill','none').attr('stroke',c).attr('stroke-width',sw);
+    g.append('line').attr('x1',0).attr('y1',-26).attr('x2',0).attr('y2',26).attr('stroke',c).attr('stroke-width',sw*.75).attr('stroke-opacity',.85);
+    g.append('line').attr('x1',-26).attr('y1',0).attr('x2',26).attr('y2',0).attr('stroke',c).attr('stroke-width',sw*.75).attr('stroke-opacity',.85);
+    g.append('path').attr('d','M-22,-14 Q0,-20 22,-14').attr('fill','none').attr('stroke',c).attr('stroke-width',sw*.75).attr('stroke-opacity',.7);
+    g.append('path').attr('d','M-22,14 Q0,20 22,14').attr('fill','none').attr('stroke',c).attr('stroke-width',sw*.75).attr('stroke-opacity',.7);
+    g.append('path').attr('d','M0,-26 Q14,-10 14,0 Q14,14 0,26').attr('fill','none').attr('stroke',c).attr('stroke-width',sw*.7).attr('stroke-opacity',.55);
+    g.append('path').attr('d','M0,-26 Q-14,-10 -14,0 Q-14,14 0,26').attr('fill','none').attr('stroke',c).attr('stroke-width',sw*.7).attr('stroke-opacity',.55);
+
+  } else if (t.id === 'applied') {
+    // Bullseye / target
+    g.append('circle').attr('cx',0).attr('cy',0).attr('r',28).attr('fill','none').attr('stroke',c).attr('stroke-width',sw*.75).attr('stroke-opacity',.55);
+    g.append('circle').attr('cx',0).attr('cy',0).attr('r',18).attr('fill','none').attr('stroke',c).attr('stroke-width',sw*.85).attr('stroke-opacity',.75);
+    g.append('circle').attr('cx',0).attr('cy',0).attr('r',8).attr('fill','none').attr('stroke',c).attr('stroke-width',sw).attr('stroke-opacity',.9);
+    g.append('circle').attr('cx',0).attr('cy',0).attr('r',2.5).attr('fill',c).attr('fill-opacity',.95);
+    [[-34,0],[ 34,0],[0,-34],[0,34]].forEach(([lx,ly]) => {
+      const ex = lx===0 ? 0 : (lx>0?30:-30), ey = ly===0 ? 0 : (ly>0?30:-30);
+      g.append('line').attr('x1',lx).attr('y1',ly).attr('x2',ex).attr('y2',ey)
+        .attr('stroke',c).attr('stroke-width',sw*.65).attr('stroke-opacity',.45).attr('stroke-linecap','round');
+    });
+  }
+});
+
+// Labels sit below each hub circle (works for all rows, no header/screen overflow)
+const LABEL_TOP = t => t.hy + HUB_R + 20;
+const INSIDE_TAG_FS = Math.max(10, HUB_R * 0.072);
+
+gHubs.selectAll('text.hub-title').data(THEMES).join('text')
+  .attr('class','hub-title')
+  .attr('x', t=>t.hx)
+  .attr('y', t => isMobile ? t.hy + HUB_R + RIM_GAP + TITLE_FS : LABEL_TOP(t))
+  .attr('text-anchor','middle')
+  .attr('fill', t=>t.color)
+  .attr('font-size', `${TITLE_FS}px`)
+  .attr('font-family','Inter, sans-serif')
+  .attr('letter-spacing', isMobile ? '0.5px' : '1px')
+  .attr('font-weight','600')
+  .style('text-shadow', t=>`0 0 14px ${t.color}`)
+  .each(function(t) {
+    const el = d3.select(this);
+    const lines = t.name.split('\n');
+    if (lines.length === 1) { el.text(lines[0]); }
+    else {
+      el.text('');
+      lines.forEach((line, i) => { el.append('tspan').attr('x', t.hx).attr('dy', i===0 ? 0 : '1.2em').text(line); });
+    }
+  });
+
+gHubs.selectAll('text.hub-tag').data(THEMES).join('text')
+  .attr('class','hub-tag')
+  .attr('x', t=>t.hx)
+  .attr('y', t => LABEL_TOP(t) + TITLE_FS * 2.4 + 5)
+  .attr('text-anchor','middle')
+  .attr('fill', t=>t.color).attr('fill-opacity',.52)
+  .attr('font-size', `${INSIDE_TAG_FS}px`).attr('font-style','italic')
+  .attr('font-family','Inter, sans-serif')
+  .style('display', isMobile ? 'none' : null)
+  .text(t=>t.tagline);
+
+const hubCiteTotals = {};
+THEMES.forEach(t => {
+  hubCiteTotals[t.id] = PAPERS.filter(p=>p.theme===t.id).reduce((s,p)=>s+(CITES[p.n]||0),0);
+});
+gHubs.selectAll('text.hub-cite-total').data(THEMES).join('text')
+  .attr('class','hub-cite-total')
+  .attr('x', t=>t.hx).attr('y', t=>t.hy - HUB_R + 22)
+  .attr('text-anchor','middle')
+  .attr('fill', t=>t.color).attr('fill-opacity',.75)
+  .attr('font-size', `${Math.max(10, HUB_R*0.058)}px`)
+  .attr('font-family','Inter, sans-serif').attr('font-style','italic')
+  .style('display','none')
+  .text(t=>`${hubCiteTotals[t.id].toLocaleString()} citations`);
+
+// ── FORCE SIMULATION ───────────────────────────────────────────────────────
+const nodes = PAPERS.map(p => ({
+  ...p,
+  bridge:   BRIDGES[p.n] || null,
+  cites:    CITES[p.n] ?? null,
+  isLast:   LAST_PAPERS.has(p.n),
+  isMentee: MENTEE_PAPERS.has(p.n),
+  affil:    getAffil(p.year),
+  x: themeMap[p.theme].hx + (Math.random()-.5)*80,
+  y: themeMap[p.theme].hy + (Math.random()-.5)*80,
+}));
+
+function boundaryForce() {
+  nodes.forEach(d => {
+    const hub = themeMap[d.theme];
+    const dx = d.x - hub.hx, dy = d.y - hub.hy;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const maxD = HUB_R - PR - 8;
+    if (dist > maxD && dist > 0) { d.x = hub.hx + dx/dist*maxD; d.y = hub.hy + dy/dist*maxD; d.vx *= 0.4; d.vy *= 0.4; }
+  });
+}
+
+function illustForce() {
+  nodes.forEach(d => {
+    const hub = themeMap[d.theme];
+    const dx = d.x - hub.hx, dy = d.y - hub.hy;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const minD = ILLUST_R + PR + 6;
+    if (dist < minD && dist > 0) { const strength=(minD-dist)/minD*0.45; d.vx+=dx/dist*strength; d.vy+=dy/dist*strength; }
+  });
+}
+
+const sim = d3.forceSimulation(nodes)
+  .force('collide', d3.forceCollide(PR+4).strength(0.92))
+  .force('x', d3.forceX(d=>themeMap[d.theme].hx).strength(0.16))
+  .force('y', d3.forceY(d=>themeMap[d.theme].hy).strength(0.16))
+  .force('boundary', boundaryForce)
+  .force('illust',   illustForce)
+  .alpha(0.9).alphaDecay(0.015);
+
+// ── PAPER NODES ────────────────────────────────────────────────────────────
+const isLaw = d => d.first === 'Law';
+
+const pGs = gPapers.selectAll('g.pnode').data(nodes).join('g').attr('class','pnode')
+  .style('cursor', d => d.doi ? 'pointer' : 'default');
+
+if (!isMobile) {
+  pGs.call(d3.drag()
+    .on('start',(ev,d)=>{ if(!ev.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+    .on('drag', (ev,d)=>{ d.fx=ev.x; d.fy=ev.y; })
+    .on('end',  (ev,d)=>{ if(!ev.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+  );
+}
+
+pGs
+  .on('mouseover', showTip)
+  .on('mousemove', moveTip)
+  .on('mouseout',  hideTip)
+  .on('click', (_,d) => { if(d.doi) window.open(d.doi,'_blank'); });
+
+let _touchTs = 0;
+pGs.on('touchstart', function(ev, d) {
+  _touchTs = Date.now();
+  const t = ev.touches[0];
+  showTip({ clientX: t.clientX, clientY: t.clientY }, d);
+}, { passive: true })
+.on('touchend', function(ev, d) {
+  if (Date.now() - _touchTs < 300 && d.doi) window.open(d.doi, '_blank');
+}, { passive: true });
+
+document.addEventListener('touchstart', e => {
+  if (!e.target.closest('.pnode')) hideTip();
+}, { passive: true });
+
+pGs.append('circle').attr('class','cite-aura')
+  .attr('r', d => d.cites ? Math.min(PR + Math.sqrt(d.cites) * 1.6, PR + 38) : PR)
+  .attr('fill', d => themeMap[d.theme].color).attr('fill-opacity', 0.16)
+  .attr('stroke', d => themeMap[d.theme].color).attr('stroke-opacity', 0.35).attr('stroke-width', 1)
+  .style('display','none');
+
+pGs.filter(isLaw).append('circle').attr('class','halo').attr('r', PR+7)
+  .attr('fill','none').attr('stroke', d=>themeMap[d.theme].color)
+  .attr('stroke-opacity',.28).attr('stroke-width',1.5);
+
+pGs.filter(d=>d.bridge).append('polygon').attr('points','0,-11 7,0 0,11 -7,0')
+  .attr('fill','none').attr('stroke','#fff').attr('stroke-opacity',.55).attr('stroke-width',1.2);
+
+pGs.append('circle').attr('class','mc').attr('r', PR)
+  .attr('fill', d=>themeMap[d.theme].color)
+  .attr('fill-opacity', d=>isLaw(d)?0.88:0.65)
+  .attr('stroke', d=>themeMap[d.theme].color)
+  .attr('stroke-width', d=>isLaw(d)?1.5:0.7)
+  .attr('stroke-opacity',.9)
+  .attr('filter', d=>`url(#gp-${d.theme})`);
+
+pGs.append('text').attr('class','year-lbl')
+  .attr('text-anchor','middle').attr('dominant-baseline','middle')
+  .attr('fill','rgba(255,255,255,0.95)')
+  .attr('font-size','10px').attr('font-family','Inter, sans-serif')
+  .attr('font-weight','600').attr('pointer-events','none')
+  .text(d=>`'${String(d.year).slice(2)}`);
+
+pGs.append('text').attr('class','cite-label')
+  .attr('text-anchor','middle').attr('dominant-baseline','middle')
+  .attr('fill','rgba(255,255,255,0.97)')
+  .attr('font-size','8px').attr('font-family','Inter, sans-serif')
+  .attr('font-weight','600').attr('pointer-events','none')
+  .text(d => d.cites != null ? d.cites : '–')
+  .style('display','none');
+
+// ── TICK ────────────────────────────────────────────────────────────────────
+sim.on('tick', () => {
+  pGs.attr('transform', d=>`translate(${d.x},${d.y})`);
+  if (bridgePaths) updateBridges();
+  if (trajMode) updateTrajectory();
+});
+
+pGs.style('opacity', 0)
+   .attr('transform', d=>`translate(${themeMap[d.theme].hx},${themeMap[d.theme].hy})`);
+setTimeout(() => {
+  pGs.each(function(_, i) {
+    d3.select(this).transition().delay(i * 14).duration(520).ease(d3.easeCubicOut).style('opacity', 1);
+  });
+}, 320);
+
+// ── BRIDGE ARCS ─────────────────────────────────────────────────────────────
+let bridgePaths = null;
+function buildBridges() {
+  const bd = nodes.filter(d=>d.bridge);
+  bridgePaths = gBridge.selectAll('path.barc').data(bd).join('path').attr('class','barc')
+    .attr('fill','none')
+    .attr('stroke', d=>`url(#bg-${d.n})`)
+    .attr('stroke-width',1.8).attr('stroke-dasharray','5,4').attr('stroke-opacity',.65)
+    .style('pointer-events','visibleStroke')
+    .on('mouseover', showTip).on('mousemove', moveTip).on('mouseout', hideTip);
+}
+function updateBridges() {
+  bridgePaths.each(function(d) {
+    const sh = themeMap[d.bridge.secondary];
+    const mx = (d.x+sh.hx)/2, my = (d.y+sh.hy)/2;
+    const midX = (themeMap[d.theme].hx + sh.hx)/2;
+    const midY = (themeMap[d.theme].hy + sh.hy)/2;
+    const qx = mx + (midX-mx)*0.1 + (H/2-my)*0.08;
+    const qy = my + (midY-my)*0.1 - (W/2-mx)*0.08;
+    d3.select(this).attr('d',`M${d.x},${d.y} Q${qx},${qy} ${sh.hx},${sh.hy}`);
+    const grad = document.getElementById(`bg-${d.n}`);
+    if (grad) { grad.setAttribute('x1', d.x); grad.setAttribute('y1', d.y); grad.setAttribute('x2', sh.hx); grad.setAttribute('y2', sh.hy); }
+  });
+}
+
+// ── TOOLTIP ─────────────────────────────────────────────────────────────────
+const tip = document.getElementById('tooltip');
+function showTip(ev,d) {
+  const t = themeMap[d.theme];
+  const el = document.getElementById('tt-cit');
+  el.textContent=`(${d.first}, ${d.year}, ${d.abbr})`;
+  el.style.color=t.color;
+  document.getElementById('tt-title').textContent=d.title;
+  const be = document.getElementById('tt-bridge');
+  if (d.bridge) { be.style.display='block'; be.style.color=themeMap[d.bridge.secondary].color; be.textContent=`Bridge: ${d.bridge.note}`; }
+  else { be.style.display='none'; }
+  document.getElementById('tt-theme').textContent=`${t.icon} ${t.name.replace('\n',' ')}` + (d.bridge ? ` ↔ ${themeMap[d.bridge.secondary].icon} ${themeMap[d.bridge.secondary].name.replace('\n',' ')}` : '');
+  const citeEl = document.getElementById('tt-cite');
+  if (d.cites != null) { citeEl.style.display='block'; citeEl.textContent=`📊 ${d.cites} citation${d.cites!==1?'s':''}  (Google Scholar)`; }
+  else { citeEl.style.display='none'; }
+  document.getElementById('tt-click').textContent = d.doi ? (isMobile ? 'Tap to open paper ↗' : 'Click to open paper ↗') : '';
+  tip.classList.add('visible');
+  moveTip(ev);
+}
+function moveTip(ev) {
+  if (isMobile) return;
+  let x=ev.clientX+16, y=ev.clientY-12;
+  if(x+300>W) x=ev.clientX-315;
+  if(y+200>H) y=H-205;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+function hideTip() { tip.classList.remove('visible'); }
+
+// ── FILTER ──────────────────────────────────────────────────────────────────
+let activeTheme=null, activeInstitution=null, showConn=false;
+
+function nodeOpacity(d) {
+  if (typeof menteeMode !== 'undefined' && menteeMode && !d.isMentee) return 0.06;
+  if (activeTheme         && d.theme !== activeTheme)        return 0.06;
+  if (activeInstitution   && d.affil !== activeInstitution)  return 0.06;
+  if (typeof activeCollaborator !== 'undefined' && activeCollaborator && !(COAUTHORS[d.n]||[]).includes(activeCollaborator)) return 0.06;
+  const inp = document.getElementById('search-input');
+  if (inp) {
+    const q = inp.value.trim().toLowerCase();
+    if (q) return (d.title.toLowerCase().includes(q) || d.first.toLowerCase().includes(q) ||
+                   d.abbr.toLowerCase().includes(q)  || String(d.year).includes(q)) ? 1 : 0.06;
+  }
+  return 1;
+}
+function refreshOpacity(dur=300) { pGs.transition().duration(dur).style('opacity', nodeOpacity); }
+
+function filterTheme(tid) {
+  if (activeTheme===tid) { resetFilter(); return; }
+  activeTheme=tid;
+  document.querySelectorAll('.theme-btn[data-theme]').forEach(b=>b.classList.toggle('active',b.dataset.theme===tid));
+  refreshOpacity();
+  hubGs.transition().duration(300).style('opacity',d=>d.id===tid?1:0.22);
+  if(bridgePaths) gBridge.selectAll('path.barc').transition().duration(300)
+    .attr('stroke-opacity',d=>(d.theme===tid||(d.bridge&&d.bridge.secondary===tid))?0.85:0.05);
+  sim.force('x',d3.forceX(d=>themeMap[d.theme].hx).strength(d=>d.theme===tid?0.38:0.10))
+     .force('y',d3.forceY(d=>themeMap[d.theme].hy).strength(d=>d.theme===tid?0.38:0.10))
+     .alpha(0.3).restart();
+  showPaperList(tid);
+}
+function resetFilter() {
+  activeTheme=null;
+  document.querySelectorAll('.theme-btn[data-theme]').forEach(b=>b.classList.remove('active'));
+  refreshOpacity();
+  hubGs.transition().duration(300).style('opacity',1);
+  if(bridgePaths) gBridge.selectAll('path.barc').transition().duration(300).attr('stroke-opacity',.65);
+  sim.force('x',d3.forceX(d=>themeMap[d.theme].hx).strength(0.16))
+     .force('y',d3.forceY(d=>themeMap[d.theme].hy).strength(0.16))
+     .alpha(0.3).restart();
+  if (activeInstitution) showInstitutionList(activeInstitution);
+  else hidePaperList();
+}
+function toggleConn() {
+  showConn=!showConn;
+  ct.textContent=showConn?'✦  Hide Cross-Topic Bridges':'✦  Show Cross-Topic Bridges';
+  ct.classList.toggle('on',showConn);
+  cn.classList.toggle('visible',showConn);
+  if(showConn){ if(!bridgePaths) buildBridges(); gBridge.style('display',null); updateBridges(); }
+  else gBridge.style('display','none');
+}
+
+function filterInstitution(iid) {
+  if (activeInstitution === iid) { resetInstitution(); return; }
+  activeInstitution = iid;
+  document.querySelectorAll('.theme-btn[data-institution]').forEach(b => b.classList.toggle('active', b.dataset.institution === iid));
+  refreshOpacity();
+  showInstitutionList(iid);
+}
+function resetInstitution() {
+  activeInstitution = null;
+  document.querySelectorAll('.theme-btn[data-institution]').forEach(b => b.classList.remove('active'));
+  refreshOpacity();
+  hidePaperList();
+}
+function showInstitutionList(iid) {
+  const inst = institMap[iid];
+  const papers = PAPERS.filter(p => getAffil(p.year) === iid).sort((a,b) => b.year - a.year || a.first.localeCompare(b.first));
+  panel.innerHTML = '';
+  const back = document.createElement('button');
+  back.id = 'pl-back'; back.innerHTML = '← All institutions'; back.onclick = resetInstitution;
+  panel.appendChild(back);
+  const hdr = document.createElement('div');
+  hdr.id = 'pl-heading'; hdr.style.color = inst.color;
+  hdr.textContent = `🏛 ${inst.name}`;
+  panel.appendChild(hdr);
+  const totalCites = papers.reduce((s,p) => s + (CITES[p.n] || 0), 0);
+  const cnt = document.createElement('div');
+  cnt.id = 'pl-count';
+  cnt.innerHTML = `${papers.length} papers &nbsp;·&nbsp; <span style="color:${inst.color};opacity:.8">${totalCites.toLocaleString()} total citations</span>`;
+  panel.appendChild(cnt);
+  papers.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'pl-item';
+    if (p.doi) item.dataset.doi = '1';
+    const tc = themeMap[p.theme].color;
+    const lawMark = p.first === 'Law' ? `<span style="color:${tc};opacity:.7"> ★</span>` : '';
+    const citeStr = CITES[p.n] != null ? `<span style="color:${tc};opacity:.6;float:right">${CITES[p.n]} cit.</span>` : '';
+    item.innerHTML = `<div class="pl-meta" style="color:${tc}">${p.first}${lawMark}, ${p.year} · ${p.abbr}${citeStr}</div><div class="pl-title">${p.title}</div>`;
+    if (p.doi) item.onclick = () => window.open(p.doi, '_blank');
+    panel.appendChild(item);
+  });
+  panel.classList.add('visible');
+}
+
+let menteeMode = false;
+function toggleMenteeMode() {
+  menteeMode = !menteeMode;
+  document.getElementById('btn-mentee').classList.toggle('on', menteeMode);
+  refreshOpacity();
+}
+
+let trajMode = false, trajBuilt = false, trajAnimating = false, trajAnimTimeout = null;
+const sortedNodes = [...nodes].sort((a,b) => a.n - b.n);
+
+function buildTrajectory() {
+  gTrajectory.selectAll('*').remove();
+  gTrajectory.selectAll('circle.traj-end').data([sortedNodes[0], sortedNodes[sortedNodes.length-1]]).join('circle')
+    .attr('class','traj-end').attr('r', 22).attr('fill','none')
+    .attr('stroke','rgba(255,255,255,0.82)').attr('stroke-width', 2.5)
+    .style('opacity', 0);
+  trajBuilt = true;
+}
+function updateTrajectory() {
+  gTrajectory.selectAll('circle.traj-end').each(function(d) { d3.select(this).attr('cx',d.x).attr('cy',d.y); });
+}
+function animateTrajectory() {
+  trajAnimating = true;
+  pGs.style('opacity', d => d.n === sortedNodes[0].n ? 1 : 0.06);
+  gTrajectory.selectAll('circle.traj-end').filter(d => d.n === sortedNodes[0].n)
+    .transition().delay(250).duration(400).style('opacity', 1);
+  let i = 0;
+  const STEP = 68;
+  function step() {
+    if (!trajMode) { finishTrajAnimation(false); return; }
+    if (i >= sortedNodes.length - 1) { finishTrajAnimation(true); return; }
+    pGs.filter(d => d.n === sortedNodes[i + 1].n).transition().duration(80).style('opacity', 1);
+    i++;
+    trajAnimTimeout = setTimeout(step, STEP);
+  }
+  trajAnimTimeout = setTimeout(step, 500);
+}
+function finishTrajAnimation(completed) {
+  trajAnimating = false;
+  pGs.transition().duration(400).style('opacity', nodeOpacity);
+  if (completed) { gTrajectory.selectAll('circle.traj-end').transition().duration(400).style('opacity', 1); }
+}
+function toggleTrajectory() {
+  trajMode = !trajMode;
+  document.getElementById('btn-traj').classList.toggle('on', trajMode);
+  if (trajMode) {
+    if (!trajBuilt) buildTrajectory();
+    gTrajectory.selectAll('circle.traj-end').style('opacity', 0);
+    gTrajectory.style('display', null);
+    updateTrajectory();
+    animateTrajectory();
+  } else {
+    if (trajAnimTimeout) clearTimeout(trajAnimTimeout);
+    trajAnimating = false;
+    gTrajectory.style('display', 'none');
+    pGs.transition().duration(300).style('opacity', nodeOpacity);
+  }
+}
+
+let collabMode = false, activeCollaborator = null;
+const collabCounts = {};
+Object.values(COAUTHORS).forEach(arr => arr.forEach(name => { collabCounts[name] = (collabCounts[name] || 0) + 1; }));
+const TOP_COLLABS = Object.entries(collabCounts).sort((a,b) => b[1]-a[1]).slice(0,10);
+
+function buildCollabList() {
+  activeCollaborator = null;
+  refreshOpacity();
+  panel.innerHTML = '';
+  const back = document.createElement('button');
+  back.id = 'pl-back'; back.innerHTML = '← Close';
+  back.onclick = () => { collabMode=false; document.getElementById('btn-collab').classList.remove('on'); activeCollaborator=null; refreshOpacity(); hidePaperList(); };
+  panel.appendChild(back);
+  const hdr = document.createElement('div');
+  hdr.id = 'pl-heading'; hdr.style.color = '#E896C8';
+  hdr.textContent = '👥 Top 10 Collaborators';
+  panel.appendChild(hdr);
+  const sub = document.createElement('div');
+  sub.id = 'pl-count'; sub.textContent = 'Ranked by number of co-authored papers';
+  panel.appendChild(sub);
+  TOP_COLLABS.forEach(([name, count]) => {
+    const item = document.createElement('div');
+    item.className = 'pl-item'; item.style.cursor = 'pointer';
+    item.innerHTML = `<div class="pl-meta" style="color:#E896C8">${name}<span style="float:right;color:#8a7ab8">${count} paper${count>1?'s':''}</span></div>`;
+    item.onclick = () => filterByCollaborator(name);
+    panel.appendChild(item);
+  });
+  panel.classList.add('visible');
+}
+function showCollabPanel() {
+  collabMode = !collabMode;
+  document.getElementById('btn-collab').classList.toggle('on', collabMode);
+  if (!collabMode) { activeCollaborator=null; refreshOpacity(); hidePaperList(); return; }
+  buildCollabList();
+}
+function filterByCollaborator(name) {
+  activeCollaborator = name;
+  refreshOpacity();
+  const papers = PAPERS.filter(p => (COAUTHORS[p.n]||[]).includes(name)).sort((a,b) => b.year-a.year);
+  panel.innerHTML = '';
+  const back = document.createElement('button');
+  back.id = 'pl-back'; back.innerHTML = '← Top collaborators';
+  back.onclick = () => { activeCollaborator=null; refreshOpacity(); buildCollabList(); };
+  panel.appendChild(back);
+  const hdr = document.createElement('div');
+  hdr.id = 'pl-heading'; hdr.style.color = '#E896C8';
+  hdr.textContent = `👤 ${name}`;
+  panel.appendChild(hdr);
+  const cnt = document.createElement('div');
+  cnt.id = 'pl-count'; cnt.textContent = `${papers.length} co-authored paper${papers.length>1?'s':''}`;
+  panel.appendChild(cnt);
+  papers.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'pl-item';
+    if (p.doi) item.dataset.doi = '1';
+    const tc = themeMap[p.theme].color;
+    const citeStr = CITES[p.n] != null ? `<span style="color:${tc};opacity:.6;float:right">${CITES[p.n]} cit.</span>` : '';
+    item.innerHTML = `<div class="pl-meta" style="color:${tc}">${p.year} · ${p.abbr}${citeStr}</div><div class="pl-title">${p.title}</div>`;
+    if (p.doi) item.onclick = () => window.open(p.doi, '_blank');
+    panel.appendChild(item);
+  });
+  panel.classList.add('visible');
+}
+
+let citeMode = false;
+function setLabelMode(mode) {
+  pGs.select('text.year-lbl').style('display',  mode==='year' ? null : 'none');
+  pGs.select('text.cite-label').style('display', mode==='cite' ? null : 'none');
+}
+function toggleCiteMode() {
+  citeMode = !citeMode;
+  document.getElementById('btn-cite').classList.toggle('on', citeMode);
+  pGs.select('circle.cite-aura').style('display', citeMode ? null : 'none');
+  gHubs.selectAll('text.hub-cite-total').style('display', citeMode ? null : 'none');
+  setLabelMode(citeMode ? 'cite' : 'year');
+}
+
+function showPaperList(tid) {
+  const t = themeMap[tid];
+  const papers = PAPERS.filter(p=>p.theme===tid).sort((a,b)=>b.year-a.year || a.first.localeCompare(b.first));
+  panel.innerHTML='';
+  const back=document.createElement('button');
+  back.id='pl-back'; back.innerHTML='← All themes'; back.onclick=resetFilter;
+  panel.appendChild(back);
+  const hdr=document.createElement('div');
+  hdr.id='pl-heading'; hdr.style.color=t.color;
+  hdr.textContent=`${t.icon}  ${t.name}`;
+  panel.appendChild(hdr);
+  const totalCites = papers.reduce((s,p)=>s+(CITES[p.n]||0),0);
+  const cnt=document.createElement('div');
+  cnt.id='pl-count';
+  cnt.innerHTML=`${papers.length} papers &nbsp;·&nbsp; <span style="color:${t.color};opacity:.8">${totalCites.toLocaleString()} total citations</span>`;
+  panel.appendChild(cnt);
+  papers.forEach(p=>{
+    const item=document.createElement('div');
+    item.className='pl-item';
+    if(p.doi) item.dataset.doi='1';
+    const lawMark = p.first==='Law' ? `<span style="color:${t.color};opacity:.7"> ★</span>` : '';
+    const citeStr = CITES[p.n] != null ? `<span style="color:${t.color};opacity:.6;float:right">${CITES[p.n]} cit.</span>` : '';
+    item.innerHTML=`<div class="pl-meta" style="color:${t.color}">${p.first}${lawMark}, ${p.year} · ${p.abbr}${citeStr}</div><div class="pl-title">${p.title}</div>`;
+    if(p.doi) item.onclick=()=>window.open(p.doi,'_blank');
+    panel.appendChild(item);
+  });
+  panel.classList.add('visible');
+}
+function hidePaperList() { panel.classList.remove('visible'); }
+
+let searchActive = false;
+function toggleSearch() {
+  searchActive = !searchActive;
+  document.getElementById('btn-search').classList.toggle('on', searchActive);
+  const inp = document.getElementById('search-input');
+  inp.classList.toggle('visible', searchActive);
+  if (searchActive) { inp.focus(); } else { inp.value=''; doSearch(''); }
+}
+function doSearch(q) { refreshOpacity(200); }
+
+const menuBtn    = document.getElementById('menu-btn');
+const sidebarEl  = document.getElementById('sidebar');
+const sidebarOvl = document.getElementById('sidebar-overlay');
+function closeSidebar() { sidebarEl.classList.remove('open'); sidebarOvl.classList.remove('visible'); menuBtn.textContent = '☰'; }
+menuBtn.addEventListener('click', () => {
+  const opening = !sidebarEl.classList.contains('open');
+  sidebarEl.classList.toggle('open', opening);
+  sidebarOvl.classList.toggle('visible', opening);
+  menuBtn.textContent = opening ? '✕' : '☰';
+});
+sidebarOvl.addEventListener('click', closeSidebar);
+
+// ── LIVE CITATION UPDATE (OpenAlex API, runs on every page load) ──────────────
+async function updateCitationsLive() {
+  const doiPapers = PAPERS.filter(p => p.doi && p.doi.includes('doi.org/'));
+  if (!doiPapers.length) return;
+
+  const clean = doi => doi.replace(/https?:\/\/doi\.org\//, '');
+
+  // OpenAlex allows up to 50 DOIs per batch request
+  for (let i = 0; i < doiPapers.length; i += 50) {
+    const batch = doiPapers.slice(i, i + 50);
+    const filter = 'doi:' + batch.map(p => clean(p.doi)).join('|');
+    const url = `https://api.openalex.org/works?filter=${encodeURIComponent(filter)}&per-page=50&select=doi,cited_by_count&mailto=kflawalbany@gmail.com`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      data.results.forEach(work => {
+        if (!work.doi) return;
+        const paper = batch.find(p => clean(p.doi).toLowerCase() === clean(work.doi).toLowerCase());
+        if (paper) CITES[paper.n] = work.cited_by_count;
+      });
+    } catch(e) { /* silently use hardcoded fallbacks if network unavailable */ }
+  }
+
+  // Refresh all citation-dependent elements
+  nodes.forEach(d => { d.cites = CITES[d.n] ?? null; });
+  pGs.select('circle.cite-aura')
+    .attr('r', d => d.cites ? Math.min(PR + Math.sqrt(d.cites) * 1.6, PR + 38) : PR);
+  pGs.select('text.cite-label').text(d => d.cites != null ? d.cites : '–');
+  THEMES.forEach(t => {
+    hubCiteTotals[t.id] = PAPERS.filter(p => p.theme === t.id).reduce((s, p) => s + (CITES[p.n] || 0), 0);
+  });
+  gHubs.selectAll('text.hub-cite-total').text(t => `${hubCiteTotals[t.id].toLocaleString()} citations`);
+  if (citeMode) {
+    pGs.select('text.cite-label').style('display', null);
+    gHubs.selectAll('text.hub-cite-total').style('display', null);
+  }
+}
+
+updateCitationsLive();
+</script>
+</body>
+</html>
