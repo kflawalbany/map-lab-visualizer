@@ -244,7 +244,8 @@ const BRIDGES = {
   39: { secondary:'special',   note:'Co-imagination of future experiences fosters shared prosocial emotions' },
 };
 
-// ── CITATION COUNTS (from Google Scholar, April 2026) ─────────────────────
+// ── CITATION COUNTS (populated live from OpenAlex API on page load) ────────
+// ── CITATION COUNTS (from Google Scholar — update when adding new papers) ──
 const CITES = {
   1:140, 2:90,  3:94,  4:25,  5:8,   6:19,  7:32,  8:20,  9:36,
   10:50, 11:0,  12:25, 13:2,  14:11, 15:8,  16:29, 17:16, 18:42,
@@ -388,16 +389,16 @@ function buildAPA(p) {
 //    doi:'https://doi.org/10.XXXX/XXXXXX'},
 //
 const PAPERS = [
-  // Special Populations (7 — extraordinary altruists, effective giving, high-impact prosociality)
+  // Special Populations (5 — extraordinary altruists, effective giving, high-impact prosociality)
   {n:30,first:'Law',      year:2026,abbr:'PNAS Nex',  theme:'special',  title:'Reasoning and empathy are not competing but complementary features of altruism',doi:'https://doi.org/10.1093/pnasnexus/pgag015'},
   {n:32,first:'Bauer',    year:2026,abbr:'BJSP',      theme:'special',  title:'Concern for future generations predicts costly present-day prosociality and extraordinary altruism: A case study of organ donorship',doi:'https://doi.org/10.1111/bjso.70070'},
   {n:38,first:'Bae',      year:2026,abbr:'PID',       theme:'special',  title:'Altruistic, more than reputational concerns, drive legacy motives, values, and aspirations across the world',doi:'https://doi.org/10.1016/j.paid.2026.113804'},
   {n:25,first:'Law',      year:2025,abbr:'PNAS Nex',  theme:'special',  title:'Mapping the moral architecture of effective and extraordinary altruism',doi:'https://doi.org/10.1093/pnasnexus/pgaf326'},
   {n:6, first:'Law',      year:2024,abbr:'TiCS',      theme:'special',  title:'Ethical reasoning versus empathic bias: A false dichotomy?',doi:'https://doi.org/10.1016/j.tics.2023.10.006'},
-  {n:3, first:'Law',      year:2022,abbr:'PSPB',      theme:'special',  title:'Biased benevolence: The perceived morality of effective altruism across social distance',doi:'https://doi.org/10.1177/01461672211002773'},
-  {n:2, first:'Fowler',   year:2021,abbr:'Psych Sci', theme:'special',  title:'Against empathy bias: The moral value of equitable empathy',doi:'https://doi.org/10.1177/0956797620979965'},
 
-  // Typical Populations (6 — how ordinary people extend moral concern across social distance)
+  // Typical Populations (8 — how ordinary people extend moral concern across social distance)
+  {n:3, first:'Law',      year:2022,abbr:'PSPB',      theme:'typical',  title:'Biased benevolence: The perceived morality of effective altruism across social distance',doi:'https://doi.org/10.1177/01461672211002773'},
+  {n:2, first:'Fowler',   year:2021,abbr:'Psych Sci', theme:'typical',  title:'Against empathy bias: The moral value of equitable empathy',doi:'https://doi.org/10.1177/0956797620979965'},
   {n:41,first:'Wang',     year:2026,abbr:'Soc Cog',   theme:'typical',  title:'Investigating relationships between moral foundations and support for revenge',doi:'https://osf.io/preprints/psyarxiv/zkc65_v1'},
   {n:40,first:'Capozzoli',year:2026,abbr:'GPIR',      theme:'typical',  title:'Future generations hold the lowest moral standing, even below present-day marginalized human and non-human outgroups',doi:'https://osf.io/preprints/psyarxiv/c9p8f_v1'},
   {n:28,first:'Capuano',  year:2026,abbr:'SPPC',      theme:'typical',  title:'From tribe to humanity: How ingroup expansion can fuel distant altruism',doi:'https://doi.org/10.1111/spc3.70117'},
@@ -882,7 +883,7 @@ function showTip(ev,d) {
   else { be.style.display='none'; }
   document.getElementById('tt-theme').textContent=`${t.icon} ${t.name.replace('\n',' ')}` + (d.bridge ? ` ↔ ${themeMap[d.bridge.secondary].icon} ${themeMap[d.bridge.secondary].name.replace('\n',' ')}` : '');
   const citeEl = document.getElementById('tt-cite');
-  if (d.cites != null) { citeEl.style.display='block'; citeEl.textContent=`📊 ${d.cites} citation${d.cites!==1?'s':''}  (Google Scholar)`; }
+  if (d.cites != null) { citeEl.style.display='block'; citeEl.textContent=`📊 ${d.cites} citation${d.cites!==1?'s':''}  (Semantic Scholar)`; }
   else { citeEl.style.display='none'; }
   document.getElementById('tt-click').textContent = d.doi ? (isMobile ? 'Tap to open paper ↗' : 'Click to open paper ↗') : '';
   tip.classList.add('visible');
@@ -1134,46 +1135,6 @@ menuBtn.addEventListener('click', () => {
 });
 sidebarOvl.addEventListener('click', closeSidebar);
 
-// ── LIVE CITATION UPDATE (OpenAlex API, runs on every page load) ──────────────
-async function updateCitationsLive() {
-  const doiPapers = PAPERS.filter(p => p.doi && p.doi.includes('doi.org/'));
-  if (!doiPapers.length) return;
-
-  const clean = doi => doi.replace(/https?:\/\/doi\.org\//, '');
-
-  // OpenAlex allows up to 50 DOIs per batch request
-  for (let i = 0; i < doiPapers.length; i += 50) {
-    const batch = doiPapers.slice(i, i + 50);
-    const filter = 'doi:' + batch.map(p => clean(p.doi)).join('|');
-    const url = `https://api.openalex.org/works?filter=${encodeURIComponent(filter)}&per-page=50&select=doi,cited_by_count&mailto=kflawalbany@gmail.com`;
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      data.results.forEach(work => {
-        if (!work.doi) return;
-        const paper = batch.find(p => clean(p.doi).toLowerCase() === clean(work.doi).toLowerCase());
-        if (paper) CITES[paper.n] = work.cited_by_count;
-      });
-    } catch(e) { /* silently use hardcoded fallbacks if network unavailable */ }
-  }
-
-  // Refresh all citation-dependent elements
-  nodes.forEach(d => { d.cites = CITES[d.n] ?? null; });
-  pGs.select('circle.cite-aura')
-    .attr('r', d => d.cites ? Math.min(PR + Math.sqrt(d.cites) * 1.6, PR + 38) : PR);
-  pGs.select('text.cite-label').text(d => d.cites != null ? d.cites : '–');
-  THEMES.forEach(t => {
-    hubCiteTotals[t.id] = PAPERS.filter(p => p.theme === t.id).reduce((s, p) => s + (CITES[p.n] || 0), 0);
-  });
-  gHubs.selectAll('text.hub-cite-total').text(t => `${hubCiteTotals[t.id].toLocaleString()} citations`);
-  if (citeMode) {
-    pGs.select('text.cite-label').style('display', null);
-    gHubs.selectAll('text.hub-cite-total').style('display', null);
-  }
-}
-
-updateCitationsLive();
 </script>
 </body>
 </html>
