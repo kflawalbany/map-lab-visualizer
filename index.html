@@ -18,26 +18,30 @@ body { background:#0a0015; color:#e0d0ff; font-family:'Inter',sans-serif; overfl
   position:fixed; top:0; left:0; right:0; padding:14px 32px 8px;
   z-index:200; background:linear-gradient(to bottom,rgba(10,0,21,.97) 55%,transparent);
 }
-#header h1 { font-size:1.15rem; font-weight:600; letter-spacing:6px; color:#ff6bd6; font-family:'Orbitron',sans-serif; text-shadow:0 0 20px rgba(255,107,214,.5),0 0 40px rgba(255,107,214,.2); }
-#header p  { font-size:.7rem; color:#6a4a8a; letter-spacing:2px; margin-top:2px; font-family:'Orbitron',sans-serif; }
+#header h1 { font-size:1.15rem; font-weight:700; letter-spacing:6px; color:#ff8ce0; font-family:'Orbitron',sans-serif; text-shadow:0 0 8px rgba(255,107,214,1),0 0 18px rgba(255,107,214,.85),0 0 36px rgba(255,107,214,.55),0 0 60px rgba(255,107,214,.3); }
+#header p  { font-size:.72rem; color:#d59cf0; letter-spacing:2.5px; margin-top:3px; font-family:'Orbitron',sans-serif; text-shadow:0 0 8px rgba(213,156,240,.8),0 0 18px rgba(213,156,240,.45); }
 
 #sidebar {
   position:fixed; left:0; top:68px; bottom:0; width:210px; z-index:150;
-  padding:12px 10px; background:linear-gradient(to right,rgba(10,0,21,.96) 78%,transparent);
+  padding:12px 10px;
+  background:linear-gradient(to right,rgba(10,0,21,.99) 0%,rgba(10,0,21,.98) 90%,rgba(10,0,21,.86) 100%);
+  backdrop-filter:blur(6px); border-right:1px solid rgba(255,107,214,.18);
+  box-shadow:6px 0 24px rgba(10,0,21,.55);
   display:flex; flex-direction:column; gap:5px; overflow-y:auto;
 }
 #sidebar h3 {
   font-size:.6rem; letter-spacing:4px; color:#ff6bd6;
   text-transform:uppercase; margin:0 0 11px 1px; flex-shrink:0;
   font-family:'Orbitron',sans-serif;
-  text-shadow:0 0 10px rgba(255,107,214,.3);
+  text-shadow:0 0 7px rgba(255,107,214,.9),0 0 16px rgba(255,107,214,.5);
 }
 #sidebar > h3 { margin-top:8px; }
 .theme-btn {
   display:flex; align-items:center; gap:9px; padding:8px 11px;
   border:1px solid rgba(255,107,214,.08); border-radius:24px;
-  background:rgba(255,255,255,.02); cursor:pointer; font-family:'Inter',sans-serif;
-  font-size:.7rem; color:#8a6aaa; transition:all .2s; text-align:left;
+  background:rgba(255,255,255,.02); cursor:pointer; font-family:'Orbitron',sans-serif;
+  font-size:.56rem; letter-spacing:.3px; color:#cdb6f0; transition:all .2s; text-align:left;
+  text-shadow:0 0 6px rgba(190,150,235,.55);
 }
 .theme-btn:hover { background:rgba(255,107,214,.08); color:#e0d0ff; border-color:rgba(255,107,214,.2); }
 .theme-btn.active { background:rgba(255,107,214,.12); color:#fff; border-color:rgba(255,107,214,.3); box-shadow:0 0 12px rgba(255,107,214,.15); }
@@ -49,8 +53,9 @@ body { background:#0a0015; color:#e0d0ff; font-family:'Inter',sans-serif; overfl
 #conn-toggle {
   margin-top:22px; padding:8px 11px; border:1px solid rgba(0,212,255,.12);
   border-radius:24px; background:rgba(0,212,255,.04); cursor:pointer;
-  font-family:'Inter',sans-serif; font-size:.68rem; color:#6a8aaa; letter-spacing:.5px;
-  transition:all .2s; text-align:center;
+  font-family:'Orbitron',sans-serif; font-size:.54rem; color:#7fd4f0; letter-spacing:.3px;
+  transition:all .2s; text-align:center; line-height:1.4;
+  text-shadow:0 0 6px rgba(0,212,255,.5);
 }
 #conn-toggle:hover { background:rgba(0,212,255,.1); color:#00d4ff; }
 #conn-toggle.on { background:rgba(0,212,255,.12); color:#00d4ff; border-color:rgba(0,212,255,.3); box-shadow:0 0 12px rgba(0,212,255,.15); }
@@ -77,8 +82,9 @@ body { background:#0a0015; color:#e0d0ff; font-family:'Inter',sans-serif; overfl
 .tool-btn {
   display:flex; align-items:center; gap:8px; padding:7px 11px;
   border:1px solid rgba(255,255,255,.07); border-radius:24px;
-  background:rgba(255,255,255,.02); cursor:pointer; font-family:'Inter',sans-serif;
-  font-size:.68rem; color:#8a6aaa; transition:all .2s; text-align:left; width:100%;
+  background:rgba(255,255,255,.02); cursor:pointer; font-family:'Orbitron',sans-serif;
+  font-size:.54rem; letter-spacing:.3px; color:#cdb6f0; transition:all .2s; text-align:left; width:100%;
+  text-shadow:0 0 6px rgba(190,150,235,.55);
 }
 .tool-btn:hover { background:rgba(255,107,214,.08); color:#e0d0ff; }
 .tool-btn.on { background:rgba(255,107,214,.1); color:#ff6bd6; border-color:rgba(255,107,214,.25); }
@@ -94,7 +100,7 @@ body { background:#0a0015; color:#e0d0ff; font-family:'Inter',sans-serif; overfl
 
 #paper-list {
   display:none; position:absolute; inset:0; z-index:20;
-  background:linear-gradient(to right,rgba(10,0,21,.98) 82%,transparent);
+  background:linear-gradient(to right,rgba(10,0,21,.99) 0%,rgba(10,0,21,.98) 92%,rgba(10,0,21,.88) 100%);
   flex-direction:column; padding:10px 8px; overflow-y:auto; gap:0;
 }
 #paper-list.visible { display:flex; }
@@ -146,9 +152,9 @@ body { background:#0a0015; color:#e0d0ff; font-family:'Inter',sans-serif; overfl
 #music-ctrl {
   display:flex; align-items:center; gap:8px; padding:7px 11px;
   border:1px solid rgba(0,212,255,.1); border-radius:24px;
-  background:rgba(0,212,255,.03); cursor:pointer; font-family:'Inter',sans-serif;
-  font-size:.68rem; color:#6a8aaa; transition:all .2s; text-align:left; width:100%;
-  margin-top:4px;
+  background:rgba(0,212,255,.03); cursor:pointer; font-family:'Orbitron',sans-serif;
+  font-size:.54rem; letter-spacing:.3px; color:#7fd4f0; transition:all .2s; text-align:left; width:100%;
+  margin-top:4px; text-shadow:0 0 6px rgba(0,212,255,.5);
 }
 #music-ctrl:hover { background:rgba(0,212,255,.08); color:#00d4ff; }
 #music-ctrl.on { background:rgba(0,212,255,.1); color:#00d4ff; border-color:rgba(0,212,255,.25); }
@@ -214,6 +220,7 @@ let vTime = 0;
 let starPivot = {x:0, y:0};
 let shootingStars = [];
 let nextShoot = 2;
+let sceneCx = 0;  // focal column for sun/road/car — aligned to the Typical Populations hub once layout is computed
 
 function initStars() {
   cvs.width = innerWidth; cvs.height = innerHeight;
@@ -245,11 +252,40 @@ function lerpColor(c1,c2,t){ return [lerp(c1[0],c2[0],t),lerp(c1[1],c2[1],t),ler
 function rgb(c){ return `rgb(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])})`; }
 function rgba(c,a){ return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${a})`; }
 
+// A single neon-silhouette palm tree: curved trunk + drooping fronds, drawn in one stroke.
+function drawPalm(x, baseY, hgt, side) {
+  const trunkCurve = hgt * 0.12 * (-side);     // lean away from the road
+  const topY = baseY - hgt;
+  const cxT = x + trunkCurve * 0.6, cyT = topY;
+  const frondLen = hgt * 0.5;
+  ctx.beginPath();
+  // trunk
+  ctx.moveTo(x, baseY);
+  ctx.quadraticCurveTo(x + trunkCurve, baseY - hgt * 0.5, cxT, cyT);
+  // crown fronds — arch up and out, then tips droop
+  const dirs = [-1.45, -1.0, -0.55, 0, 0.55, 1.0, 1.45];
+  for (const d of dirs) {
+    const dx = Math.sin(d), dy = -Math.cos(d);
+    const ex = cxT + dx * frondLen,        ey = cyT + dy * frondLen + frondLen * 0.38;
+    const mx = cxT + dx * frondLen * 0.55, my = cyT + dy * frondLen * 0.55;
+    ctx.moveTo(cxT, cyT);
+    ctx.quadraticCurveTo(mx, my, ex, ey);
+  }
+  ctx.lineWidth = Math.max(1, hgt * 0.03);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(12,2,22,0.95)';      // dark silhouette
+  ctx.shadowColor = side < 0 ? 'rgba(255,60,180,0.6)' : 'rgba(0,212,255,0.55)'; // pink left, cyan right
+  ctx.shadowBlur = Math.min(12, hgt * 0.07);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
 function drawVaporwave() {
   vTime += 0.016;
   const w = cvs.width, h = cvs.height;
   const horizonY = h * 0.52;
-  const cycle = (Math.sin(vTime * 0.04) + 1) / 2;
+  const cycle = (Math.sin(vTime * 0.12) + 1) / 2;
+  const cx = sceneCx || w * 0.5;  // focal column (Typical Populations hub on desktop)
 
   // Sky gradient
   const skyTop    = lerpColor([15,0,45],[8,0,30],cycle);
@@ -267,7 +303,7 @@ function drawVaporwave() {
 
   // Sun
   const sunR = Math.min(w,h) * 0.1;
-  const sunX = w * 0.5;
+  const sunX = cx;
   const sunY = horizonY - sunR * 0.15;
   const sunColor = lerpColor([255,160,80],[255,100,200],cycle);
 
@@ -374,7 +410,7 @@ function drawVaporwave() {
   ctx.fillRect(0,horizonY,w,h-horizonY);
 
   // Perspective grid
-  const vanishX = w*0.5, vanishY = horizonY;
+  const vanishX = cx, vanishY = horizonY;
   const gridCyan = lerpColor([0,180,255],[0,140,220],cycle);
   const gridPink = lerpColor([255,0,180],[200,0,160],cycle);
 
@@ -392,7 +428,7 @@ function drawVaporwave() {
   }
 
   // Horizontal lines (scrolling)
-  const scrollOff = (vTime * 40) % 60;
+  const scrollOff = (vTime * 96) % 60;
   ctx.lineWidth = 1;
   for (let i=0; i<35; i++) {
     const raw = (i*60 + scrollOff) / (h - horizonY + 400);
@@ -408,13 +444,36 @@ function drawVaporwave() {
     ctx.stroke();
   }
 
+  // Palm trees lining the road — emerge at the horizon, grow & spread toward the viewer
+  const PALM_N = 7, palmSpeed = 0.12;
+  const palms = [];
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < PALM_N; i++) {
+      const p = ((vTime * palmSpeed) + i / PALM_N + (side<0 ? 0 : 0.5/PALM_N)) % 1;
+      palms.push({ p, side });
+    }
+  }
+  palms.sort((a, b) => a.p - b.p);  // draw far (small p) first so nearer palms overlap
+  palms.forEach(pt => {
+    const t = pt.p * pt.p;                       // perspective compression
+    const y = horizonY + t * (h - horizonY);     // base slides down the road
+    const halfRoad = t * w * 0.34;               // road widens toward the viewer
+    const x = cx + pt.side * halfRoad;
+    const hgt = (0.05 + t * 0.92) * (h * 0.30);  // grows as it approaches
+    const alpha = Math.min(1, t * 6) * (1 - Math.max(0, (pt.p - 0.93) / 0.07)); // fade in far, out at the very end
+    if (alpha <= 0.01) return;
+    ctx.globalAlpha = alpha;
+    drawPalm(x, y, hgt, pt.side);
+    ctx.globalAlpha = 1;
+  });
+
   // Car (rear 3/4 view, driving away into the horizon, neon-outlined)
   const carScale = Math.min(w,h) / 620;
   const carW = 54 * carScale;
   const carH = 26 * carScale;
-  const carX = w*0.5;
+  const carX = cx;
   const carY = h*0.86;
-  const bob = Math.sin(vTime*4)*1.2*carScale;
+  const bob = Math.sin(vTime*7)*1.4*carScale;
 
   ctx.save();
   ctx.translate(0, bob);
@@ -511,13 +570,18 @@ const TRACKS = [
   {file:'ES_The Night Is Mine - Forever Sunset.mp3', name:'The Night Is Mine — Forever Sunset'},
 ];
 let currentTrack = 0, musicPlaying = false;
-const audio = new Audio(TRACKS[0].file);
+// Encode filenames so spaces/special chars resolve correctly on GitHub Pages.
+const trackURL = i => encodeURIComponent(TRACKS[i].file);
+const audio = new Audio(trackURL(0));
 audio.volume = 0.35;
 audio.addEventListener('ended', () => {
   currentTrack = (currentTrack + 1) % TRACKS.length;
-  audio.src = TRACKS[currentTrack].file;
-  audio.play();
+  audio.src = trackURL(currentTrack);
+  audio.play().catch(()=>{});
   updateTrackDisplay();
+});
+audio.addEventListener('error', () => {
+  console.error('[music] failed to load:', audio.src, '— check this file exists in the repo at that exact path/case.');
 });
 
 function updateTrackDisplay() {
@@ -906,6 +970,8 @@ THEMES.forEach(t => {
   t.hx = SIDEBAR_W + colW * (t.col + 0.5) + (isMobile ? 0 : (1 - t.col) * 11);
   t.hy = HEADER_H  + rowH * (t.row + 0.5) + (isMobile ? 0 : (t.row === 0 ? 14 : -14));
 });
+// Align the vaporwave focal column (sun, road, car) under the Typical Populations hub.
+sceneCx = themeMap.typical.hx;
 
 const svg = d3.select('#main-svg').attr('width', W).attr('height', H);
 
