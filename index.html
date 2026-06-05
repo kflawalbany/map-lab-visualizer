@@ -544,7 +544,9 @@ function syncMusicBtn() {
 // Attempt autoplay; if the browser blocks it, start on the first user gesture.
 window.addEventListener('load', () => {
   startMusic();
-  const kick = () => {
+  const kick = (e) => {
+    // Let the music button manage its own play/pause — don't double-handle it.
+    if (e && e.target && e.target.closest && e.target.closest('#music-ctrl')) return;
     if (!musicPlaying) startMusic();
     if (musicPlaying) {
       window.removeEventListener('pointerdown', kick);
