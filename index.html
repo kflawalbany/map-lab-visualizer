@@ -605,18 +605,22 @@ function syncMusicBtn() {
   updateTrackDisplay();
 }
 
-// Attempt autoplay; if the browser blocks it, start on the first user gesture.
+// Attempt autoplay; if the browser blocks it, start on the FIRST user gesture only.
+// One-shot: after that first gesture the music button is the sole control, so a
+// pause stays paused and later clicks never re-start the music.
 window.addEventListener('load', () => {
   startMusic();
+  let kicked = false;
   const kick = (e) => {
-    // Let the music button manage its own play/pause — don't double-handle it.
-    if (e && e.target && e.target.closest && e.target.closest('#music-ctrl')) return;
-    if (!musicPlaying) startMusic();
-    if (musicPlaying) {
-      window.removeEventListener('pointerdown', kick);
-      window.removeEventListener('keydown', kick);
-      window.removeEventListener('touchstart', kick);
-    }
+    if (kicked) return;
+    kicked = true;
+    window.removeEventListener('pointerdown', kick);
+    window.removeEventListener('keydown', kick);
+    window.removeEventListener('touchstart', kick);
+    // If the first interaction wasn't the music button (which handles itself) and
+    // autoplay was blocked, start playback now that we have a user gesture.
+    const onMusicBtn = e && e.target && e.target.closest && e.target.closest('#music-ctrl');
+    if (!onMusicBtn && !musicPlaying) startMusic();
   };
   window.addEventListener('pointerdown', kick);
   window.addEventListener('keydown', kick);
@@ -836,7 +840,7 @@ const PAPERS = [
   {n:4, first:'Law',      year:2023,abbr:'Sustain.',  theme:'intergen', title:'Why do longtermists care about protecting the environment? Underlying mechanisms of pro-climate policy support',doi:'https://doi.org/10.3390/su152416732'},
 
   // Embedded Morality (7)
-  {n:42,first:'Amormino', year:2026,abbr:'HSSC',      theme:'embedded', title:'Aristotle\'s intuitionist approach to morality guides a new direction in moral psychology',doi:''},
+  {n:42,first:'Amormino', year:2026,abbr:'HSSC',      theme:'embedded', title:'Aristotle\'s intuitionist approach to morality guides a new direction in moral psychology',doi:'https://doi.org/10.1057/s41599-026-07942-1'},
   {n:34,first:'Syropoulos',year:2026,abbr:'GPIR',     theme:'embedded', title:'Presidential candidate endorsements by scientific journals decrease trust in science especially for moderate and conservative Americans',doi:'https://doi.org/10.1177/13684302261425955'},
   {n:31,first:'Syropoulos',year:2026,abbr:'JEP',      theme:'embedded', title:'Ecological humility as a distinct moral orientation toward nature: Scale development and validation',doi:'https://doi.org/10.1016/j.jenvp.2026.102998'},
   {n:44,first:'Wu',       year:2026,abbr:'GPIR',      theme:'embedded', title:'Shifting demographics, shifting perceptions: How race and politics shape reactions to the majority-minority future',doi:''},
