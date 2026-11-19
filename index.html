@@ -199,7 +199,7 @@ body { background:#0a0015; color:#e0d0ff; font-family:'Inter',sans-serif; overfl
 <div id="sidebar-overlay"></div>
 <div id="header">
   <h1>THE MAP LAB RESEARCH UNIVERSE</h1>
-  <p>MORALITY, ALTRUISM, &amp; PROSOCIALITY &mdash; 44 PUBLICATIONS</p>
+  <p>MORALITY, ALTRUISM, &amp; PROSOCIALITY &mdash; 50 PUBLICATIONS</p>
 </div>
 <div id="sidebar"><h3>Themes</h3></div>
 <svg id="main-svg"></svg>
@@ -639,53 +639,69 @@ const themeMap = {};
 THEMES.forEach(t => themeMap[t.id] = t);
 
 // ── BRIDGE CONNECTIONS ─────────────────────────────────────────────────────
+// Primary themes and bridges follow the research pages at maplabutah.com (synced 2026-11-19).
+// A paper listed under two themes on the site gets its second theme as the bridge.
 const BRIDGES = {
-  2:  { secondary:'typical',   note:'Equitable empathy as the ethical foundation of impartial prosociality' },
   3:  { secondary:'intergen',  note:'Perceived benevolence of effective altruism varies with temporal and social distance' },
   6:  { secondary:'typical',   note:'Ethical reasoning and empathic bias as complementary prosocial capacities' },
   25: { secondary:'typical',   note:'The moral architecture underlying extraordinary and everyday prosociality' },
+  28: { secondary:'typical',   note:'Ingroup expansion as a route to distant altruism in everyday populations' },
   32: { secondary:'intergen',  note:'Concern for future generations predicts extraordinary present-day prosociality' },
-  38: { secondary:'embedded',  note:'Altruistic legacy motives and their cultural variation worldwide' },
-  22: { secondary:'embedded',  note:'Obituary values reveal the embedded moral architecture of human life' },
-  23: { secondary:'intergen',  note:'Moral expansiveness bridges care for nature and future generations' },
-  24: { secondary:'embedded',  note:'Skepticism of public virtue motivations reflects embedded moral norms' },
-  28: { secondary:'special',   note:'Expanding ingroup boundaries fuels extraordinary distant altruism' },
-  40: { secondary:'intergen',  note:'Future generations occupy the lowest rungs of the moral hierarchy' },
+  38: { secondary:'typical',   note:'Altruistic legacy motives in general populations across the world' },
+  10: { secondary:'intergen',  note:'Moral regard for others extends across temporal and social distance' },
+  23: { secondary:'embedded',  note:'Moral valuation of nature versus humans varies across national contexts' },
   41: { secondary:'embedded',  note:'Ideological differences in moral concern reveal how political identity shapes the moral circle' },
-  9:  { secondary:'applied',   note:'Longtermist concern for the far future catalyzes pro-climate action' },
-  10: { secondary:'typical',   note:'Moral regard for others extends across temporal and social distance' },
+  42: { secondary:'embedded',  note:'Intuitionist moral philosophy bridges to empirical study of everyday moral cognition' },
+  47: { secondary:'intergen',  note:'Sociodemographic predictors of concern for one\'s own future and for future others' },
   12: { secondary:'special',   note:'Personality predicts exceptional intergenerational concern and giving' },
   18: { secondary:'special',   note:'Impartial intergenerational beneficence mirrors extraordinary altruism' },
-  19: { secondary:'typical',   note:'Expanding multigenerational moral concern through targeted intervention' },
+  19: { secondary:'applied',   note:'Interventions that increase moral concern for future generations' },
+  20: { secondary:'embedded',  note:'Responsibility for future generations and pro-environmentalism compared across European national contexts' },
   21: { secondary:'special',   note:'Protecting future generations as a source of meaning and well-being' },
+  26: { secondary:'applied',   note:'Seventh generation stewardship beliefs as a lever for widening the temporal scope of concern' },
   35: { secondary:'typical',   note:'The moral circle must expand across time, not just social space' },
   36: { secondary:'typical',   note:'Temporal distance reshapes how we value lives across generations' },
+  37: { secondary:'embedded',  note:'Underestimated national concern for future generations as a case of misperceived social norms' },
+  40: { secondary:'typical',   note:'Future generations occupy the lowest rungs of the moral hierarchy' },
+  44: { secondary:'applied',   note:'Intergenerational concern relates to interest in high-impact, long-term oriented careers' },
+  46: { secondary:'embedded',  note:'Present-day poverty as a structural condition tied to concern for future generations' },
+  13: { secondary:'typical',   note:'Cross-national links between cultural norms and peace speak to moral concern in everyday populations' },
+  14: { secondary:'intergen',  note:'Bioethics extended to future generations facing AI and existential risk' },
+  22: { secondary:'typical',   note:'Obituaries record the values of everyday lives across three decades' },
+  24: { secondary:'typical',   note:'Skepticism of public virtue motivations reflects embedded moral norms' },
   31: { secondary:'applied',   note:'Ecological humility as a moral orientation applicable to environmental intervention' },
-  42: { secondary:'typical',   note:'Intuitionist moral philosophy bridges to empirical study of everyday moral cognition' },
-  44: { secondary:'intergen',  note:'Perceptions of the majority-minority future reflect temporal and intergroup moral psychology' },
+  39: { secondary:'special',   note:'Co-imagination of future experiences fosters shared prosocial emotions' },
+  43: { secondary:'intergen',  note:'Perceptions of the majority-minority future reflect temporal and intergroup moral psychology' },
   7:  { secondary:'intergen',  note:'Longtermist education interventions increase concern for future generations' },
   8:  { secondary:'intergen',  note:'Intergenerational concern relates to constructive climate coping' },
+  9:  { secondary:'intergen',  note:'Longtermist concern for the far future catalyzes pro-climate action' },
   16: { secondary:'intergen',  note:'Intergenerational responsibility as a climate strategy across divides' },
-  20: { secondary:'intergen',  note:'Responsibility for future generations predicts climate mitigation behavior' },
-  39: { secondary:'special',   note:'Co-imagination of future experiences fosters shared prosocial emotions' },
+  17: { secondary:'intergen',  note:'Climate change framed as an intergenerational challenge needing intergenerational solutions' },
+  27: { secondary:'intergen',  note:'Correcting misperceived norms about support for protecting future generations' },
 };
 
-// ── CITATION COUNTS (from Google Scholar — last updated 2026-06-05) ────────
+// ── CITATION COUNTS (from Google Scholar — last updated 2026-11-19) ────────
+// Preprint and published versions listed separately on Scholar are summed.
+// Paper 50 is not on Scholar yet, so it has no entry and shows "–".
 const CITES = {
-  1:141, 2:92,  3:96,  4:25,  5:8,   6:19,  7:33,  8:20,  9:38,
-  10:52, 11:0,  12:28, 13:3,  14:12, 15:11, 16:32, 17:21, 18:44,
-  19:6,  20:1,  21:2,  22:2,  23:6,  24:0,  25:7,  26:5,  27:10,
-  28:1,  29:0,  30:5,  31:0,  32:1,  33:0,  34:0,  35:41, 36:18,
-  37:0,  38:0,  39:1,  40:3,  41:2,  42:0,  43:0,  44:0,
+  1:140, 2:99,  3:105, 4:24,  5:8,   6:19,  7:34,  8:24,  9:44,
+  10:55, 11:0,  12:29, 13:3,  14:14, 15:16, 16:37, 17:33, 18:49,
+  19:9,  20:2,  21:4,  22:6,  23:11, 24:1,  25:7,  26:9,  27:12,
+  28:1,  29:1,  30:6,  31:4,  32:3,  33:2,  34:1,  35:49, 36:21,
+  37:0,  38:0,  39:1,  40:6,  41:4,  42:0,  43:0,  44:1,  45:1,
+  46:4,  47:0,  48:1,  49:0,
 };
 
 // ── LAST-AUTHOR PAPERS ─────────────────────────────────────────────────────
 const LAST_PAPERS = new Set([]);
 
 // ── MENTEE PAPERS ──────────────────────────────────────────────────────────
-const MENTEE_PAPERS = new Set([21, 28, 32, 38, 40, 43]);
+const MENTEE_PAPERS = new Set([21, 28, 32, 38, 40, 49]);
 
 // ── CO-AUTHOR DATA ─────────────────────────────────────────────────────────
+// Entries are surnames looked up in INITIALS. An entry that already contains a comma
+// (e.g. 'Young, K. L.') is printed as written, for authors who share a surname with
+// another collaborator. '…' and 'et al.' mark truncated consortium author lists.
 const COAUTHORS = {
   1:  ['Buczny','Law'],
   2:  ['Fowler','Gaesser'],
@@ -706,10 +722,10 @@ const COAUTHORS = {
   17: ['Colaizzi','Syropoulos'],
   18: ['Syropoulos','Kraft-Todd','Young'],
   19: ['Young','Syropoulos'],
-  20: ['Wang','Syropoulos'],
-  21: ['Manalili','Signorini','Chukwudebe','Amormino','Markowitz','Young','Syropoulos'],
+  20: ['Wang','…','Syropoulos'],
+  21: ['Manalili','Signorini','Chukwudebe','Amormino','Goya-Tocchetto','Markowitz','Young','Syropoulos'],
   22: ['Mazzuchi','Syropoulos','Law','Young'],
-  23: ['Syropoulos','Crimston','Markowitz','Milfont','Rottman'],
+  23: ['Syropoulos','Crimston','Markowitz','Milfont','Claessens','Kyritsis','Atkinson','Bastian','Rottman'],
   24: ['Wylie','Kraft-Todd','Liang','Young','Syropoulos'],
   25: ['Syropoulos','Amormino','Marsh','Young',"O'Connor"],
   26: ['Syropoulos','Young',"O'Connor"],
@@ -720,7 +736,7 @@ const COAUTHORS = {
   31: ['Capozzoli','Law','DesRoches'],
   32: ['Bauer','Young','Amormino','Marsh',"O'Connor",'Syropoulos'],
   33: ['Janssen','Prem','Syropoulos','Siddiqi'],
-  34: ['Syropoulos','Li','Leidner','Young'],
+  34: ['Syropoulos','Li','Leidner','Young, K. L.'],
   35: ['Syropoulos','Coleman','Gainsburg',"O'Connor"],
   36: ['Syropoulos',"O'Connor",'Young'],
   37: ['Young','Syropoulos'],
@@ -729,8 +745,14 @@ const COAUTHORS = {
   40: ['Law','Syropoulos'],
   41: ['Bae','Young','Syropoulos'],
   42: ['Law','Inbar'],
-  43: ['Wang','Young','Syropoulos'],
-  44: ['Syropoulos','Mah','Law','Dixon-Gordon','Markowitz','Nteta','Reid','Ginn','Suh','Young','Lickel'],
+  43: ['Syropoulos','Mah','Law','Dixon-Gordon','Markowitz','Nteta','Reid','Ginn','Suh','Young','Lickel'],
+  44: ['Antoniadis','Young','Goya-Tocchetto','Amormino','Syropoulos'],
+  45: ['Watamanuk','Syropoulos','Dodson','Law','Thulin'],
+  46: ['Syropoulos','Signorini','Capozzoli','Young',"O'Connor"],
+  47: ['Young','Syropoulos'],
+  48: ['Syropoulos','Law','Leidner','…','Zein'],
+  49: ['Law','Young','Syropoulos'],
+  50: ['Schwaiger','Blanco','Huber','Kirchler','…','Law','et al.'],
 };
 
 // ── AUTHOR INITIALS ────────────────────────────────────────────────────────
@@ -746,9 +768,13 @@ const INITIALS = {
   'Prem':'P.', 'Siddiqi':'A.', 'Bae':'S.', 'Bastian':'B.',
   'Bontkes':'O.', 'Srivastava':'A.', 'Oveis':'C.', 'Palombo':'D.',
   'Muraven':'M.', 'Buczny':'J.', 'Bauer':'G.', 'Signorini':'A.',
-  'Chukwudebe':'A.', 'Campbell':'D.', 'Markowitz':'D. M.',
+  'Chukwudebe':'A.', 'Campbell':'D.',
   'Dixon-Gordon':'K.', 'Nteta':'T.', 'Reid':'A.', 'Ginn':'J.', 'Suh':'S. M.', 'Lickel':'B.',
   'Inbar':'Y.',
+  'Goya-Tocchetto':'D.', 'Claessens':'S.', 'Kyritsis':'T.', 'Atkinson':'Q.',
+  'Antoniadis':'A.', 'Tiwathia':'A.', 'Watamanuk':'E.', 'Dodson':'S.', 'Thulin':'E.',
+  'McLamore':'Q.', 'Zein':'R. A.',
+  'Holzknecht':'A.', 'Schwaiger':'R.', 'Blanco':'E.', 'Huber':'J.', 'Kirchler':'M.',
 };
 
 // ── FULL JOURNAL NAMES ─────────────────────────────────────────────────────
@@ -772,17 +798,25 @@ const JOURNAL_NAMES = {
   'SPPC':     'Social and Personality Psychology Compass',
   'Futures':  'Futures',
   'PNAS':     'Proceedings of the National Academy of Sciences',
-  'P&C':      'Peace and Conflict',
-  'Adv Psy':  'Advances in Psychology',
+  'P&C':      'Peace and Conflict: Journal of Peace Psychology',
+  'Adv Psy':  'Advances.in/Psychology',
   'Space P':  'Space Policy',
   'Emotion':  'Emotion',
-  'Soc Cog':  'Social Cognition',
+  'Soc Cog':  'Social Cognition (in press)',
   'OHB HM':   'Oxford Handbook of Human Motivation',
   'Pol Psych':'Political Psychology',
   'HSSC':     'Humanities and Social Sciences Communications',
+  'JCASP':    'Journal of Community & Applied Social Psychology',
+  'Clim Chg': 'Climatic Change',
+  'GPIR ip':  'Group Processes & Intergroup Relations (in press)',
+  'NHB':      'Nature Human Behaviour (in press)',
 };
 
 // ── APA HELPERS ────────────────────────────────────────────────────────────
+function fmtName(n) {
+  if (n === '…' || n === 'et al.' || n.includes(',')) return n;
+  return INITIALS[n] ? `${n}, ${INITIALS[n]}` : n;
+}
 function buildAuthorStr(p) {
   const coList = COAUTHORS[p.n] || [];
   let names;
@@ -793,10 +827,11 @@ function buildAuthorStr(p) {
   } else {
     names = [p.first, 'Law', ...coList.filter(n => n !== p.first)];
   }
-  const fmt = names.map(n => INITIALS[n] ? `${n}, ${INITIALS[n]}` : n);
+  const fmt = names.map(fmtName);
   if (fmt.length === 1) return fmt[0];
   if (fmt.length === 2) return `${fmt[0]} & ${fmt[1]}`;
-  return fmt.slice(0, -1).join(', ') + ', & ' + fmt[fmt.length - 1];
+  const s = fmt.slice(0, -1).join(', ') + ', & ' + fmt[fmt.length - 1];
+  return s.replace(/, …, (& )?/g, ', … ').replace(', & et al.', ', et al.');
 }
 function buildAPA(p) {
   const journal = JOURNAL_NAMES[p.abbr] || p.abbr;
@@ -804,60 +839,67 @@ function buildAPA(p) {
 }
 
 // ── PAPERS ─────────────────────────────────────────────────────────────────
+// n matches the numbering on maplabutah.com/publications.
 const PAPERS = [
-  // Special Populations (5)
-  {n:30,first:'Law',      year:2026,abbr:'PNAS Nex',  theme:'special',  title:'Reasoning and empathy are not competing but complementary features of altruism',doi:'https://doi.org/10.1093/pnasnexus/pgag015'},
-  {n:32,first:'Bauer',    year:2026,abbr:'BJSP',      theme:'special',  title:'Concern for future generations predicts costly present-day prosociality and extraordinary altruism: A case study of organ donorship',doi:'https://doi.org/10.1111/bjso.70070'},
+  // Special Populations (6)
   {n:38,first:'Bae',      year:2026,abbr:'PID',       theme:'special',  title:'Altruistic, more than reputational concerns, drive legacy motives, values, and aspirations across the world',doi:'https://doi.org/10.1016/j.paid.2026.113804'},
+  {n:32,first:'Bauer',    year:2026,abbr:'BJSP',      theme:'special',  title:'Concern for future generations predicts costly present-day prosociality and extraordinary altruism: A case study of organ donorship',doi:'https://doi.org/10.1111/bjso.70070'},
+  {n:30,first:'Law',      year:2026,abbr:'PNAS Nex',  theme:'special',  title:'Reasoning and empathy are not competing but complementary features of altruism',doi:'https://doi.org/10.1093/pnasnexus/pgag015'},
+  {n:28,first:'Capuano',  year:2026,abbr:'SPPC',      theme:'special',  title:'From tribe to humanity: How ingroup expansion can fuel distant altruism',doi:'https://doi.org/10.1111/spc3.70117'},
   {n:25,first:'Law',      year:2025,abbr:'PNAS Nex',  theme:'special',  title:'Mapping the moral architecture of effective and extraordinary altruism',doi:'https://doi.org/10.1093/pnasnexus/pgaf326'},
   {n:6, first:'Law',      year:2024,abbr:'TiCS',      theme:'special',  title:'Ethical reasoning versus empathic bias: A false dichotomy?',doi:'https://doi.org/10.1016/j.tics.2023.10.006'},
 
-  // Typical Populations (10)
+  // Typical Populations (8)
+  {n:49,first:'Wang',     year:2026,abbr:'Soc Cog',   theme:'typical',  title:'Investigating relationships between moral foundations and support for revenge',doi:''},
+  {n:47,first:'Law',      year:2026,abbr:'Futures',   theme:'typical',  title:'Who cares about the future? A large-scale investigation into the sociodemographic predictors of self- and other-oriented future concern',doi:'https://doi.org/10.1016/j.futures.2026.103975'},
+  {n:42,first:'Amormino', year:2026,abbr:'HSSC',      theme:'typical',  title:'Aristotle\'s intuitionist approach to morality guides a new direction in moral psychology',doi:'https://doi.org/10.1057/s41599-026-07942-1'},
   {n:41,first:'Law',      year:2026,abbr:'Pol Psych', theme:'typical',  title:'Ideological differences in moral concern reflect circle expansion, not inversion',doi:'https://doi.org/10.1111/pops.70158'},
-  {n:43,first:'Wang',     year:2026,abbr:'Soc Cog',   theme:'typical',  title:'Investigating relationships between moral foundations and support for revenge',doi:''},
-  {n:40,first:'Capozzoli',year:2026,abbr:'GPIR',      theme:'typical',  title:'Future generations hold the lowest moral standing, even below present-day marginalized human and non-human outgroups',doi:'https://doi.org/10.1177/13684302261426259'},
-  {n:28,first:'Capuano',  year:2026,abbr:'SPPC',      theme:'typical',  title:'From tribe to humanity: How ingroup expansion can fuel distant altruism',doi:'https://doi.org/10.1111/spc3.70117'},
-  {n:24,first:'Law',      year:2025,abbr:'BJSP',      theme:'typical',  title:'People are more skeptical of others\' public virtue motivations than their own',doi:'https://doi.org/10.1111/bjso.70014'},
   {n:23,first:'Law',      year:2025,abbr:'JEP',       theme:'typical',  title:'Cross-national insights into moral expansiveness: Selective valuation of nature versus humans',doi:'https://doi.org/10.1016/j.jenvp.2025.102778'},
-  {n:22,first:'Markowitz',year:2025,abbr:'PNAS',      theme:'typical',  title:'An exploration of basic human values in 38 million obituaries over 30 years',doi:'https://doi.org/10.1073/pnas.2510318122'},
+  {n:10,first:'Syropoulos',year:2024,abbr:'GPIR',     theme:'typical',  title:'Caring for present and future generations alike: Longtermism and moral regard across temporal and social distance',doi:'https://doi.org/10.1177/13684302241242115'},
   {n:3, first:'Law',      year:2022,abbr:'PSPB',      theme:'typical',  title:'Biased benevolence: The perceived morality of effective altruism across social distance',doi:'https://doi.org/10.1177/01461672211002773'},
   {n:2, first:'Fowler',   year:2021,abbr:'Psych Sci', theme:'typical',  title:'Against empathy bias: The moral value of equitable empathy',doi:'https://doi.org/10.1177/0956797620979965'},
 
-  // Intergenerational Divide (14)
+  // Intergenerational Divide (15)
+  {n:46,first:'Law',      year:2026,abbr:'PSPB',      theme:'intergen', title:'Why poverty in the present matters for intergenerational concern and the future of humanity',doi:'https://doi.org/10.1177/01461672261469612'},
+  {n:44,first:'Law',      year:2026,abbr:'JCASP',     theme:'intergen', title:'Impartial intergenerational beneficence predicts interest in high-impact, long-term oriented careers',doi:'https://doi.org/10.1002/casp.70310'},
+  {n:40,first:'Capozzoli',year:2026,abbr:'GPIR',      theme:'intergen', title:'Future generations hold the lowest moral standing, even below present-day marginalized human and nonhuman outgroups',doi:'https://doi.org/10.1177/13684302261426259'},
   {n:37,first:'Law',      year:2026,abbr:'Futures',   theme:'intergen', title:'Americans underestimate national levels of concern for future generations: Evidence across collective, governmental and moral considerations',doi:'https://doi.org/10.1016/j.futures.2026.103819'},
   {n:36,first:'Law',      year:2026,abbr:'PSPB',      theme:'intergen', title:'The probabilistic price of life across time: Generational and probabilistic distance render a life today worth more than ten tomorrow',doi:'https://doi.org/10.1177/01461672241303993'},
   {n:35,first:'Law',      year:2026,abbr:'PSPB',      theme:'intergen', title:'Moral future-thinking: Does the moral circle stand the test of time?',doi:'https://doi.org/10.1177/01461672241284324'},
   {n:26,first:'Law',      year:2025,abbr:'Sci Rep',   theme:'intergen', title:'Mapping prescriptive beliefs on seventh generation stewardship and increasing the temporal scope of intergenerational concern',doi:'https://doi.org/10.1038/s41598-025-21466-9'},
   {n:21,first:'Manalili', year:2025,abbr:'J Ind D',   theme:'intergen', title:'The motivation to protect future generations as a source of meaning and mental well-being',doi:'https://doi.org/10.1027/1614-0001/a000443'},
-  {n:19,first:'Law',      year:2025,abbr:'BJSP',      theme:'intergen', title:'Cultivating multigenerational moral expansion: Interventions to increase concern for future generations',doi:'https://doi.org/10.1111/bjso.12892'},
-  {n:18,first:'Syropoulos',year:2025,abbr:'PSPB',     theme:'intergen', title:'Impartial intergenerational beneficence: The psychology of feeling equal concern for all future generations',doi:'https://doi.org/10.1177/01461672241307800'},
+  {n:20,first:'Law',      year:2025,abbr:'JEP',       theme:'intergen', title:'Responsibility for future generations and climate change mitigation: A cross-national study of predictors of pro-environmentalism in Europe',doi:'https://doi.org/10.1016/j.jenvp.2025.102729'},
+  {n:19,first:'Law',      year:2025,abbr:'BJSP',      theme:'intergen', title:'Cultivating multigenerational moral expansion: Interventions cultivate moral concern for future generations in boundless and zero-sum contexts',doi:'https://doi.org/10.1111/bjso.12892'},
+  {n:18,first:'Syropoulos',year:2025,abbr:'PSPB',     theme:'intergen', title:'Impartial intergenerational beneficence: The psychology of feeling (equal) intergenerational concern for all future generations',doi:'https://doi.org/10.1177/01461672241307800'},
   {n:15,first:'Law',      year:2025,abbr:'PID',       theme:'intergen', title:'A future beyond ourselves: Self-oriented prospection predicts increased intergenerational responsibility',doi:'https://doi.org/10.1016/j.paid.2024.112915'},
-  {n:14,first:'Law',      year:2024,abbr:'J Med E',   theme:'intergen', title:'Artificial intelligence, existential risk and equity: The need for multigenerational bioethics',doi:'https://doi.org/10.1136/jme-2024-110583'},
   {n:12,first:'Syropoulos',year:2024,abbr:'PID',      theme:'intergen', title:'Mapping the personality of (exceptional) intergenerational concern',doi:'https://doi.org/10.1016/j.paid.2024.112814'},
-  {n:10,first:'Syropoulos',year:2024,abbr:'GPIR',     theme:'intergen', title:'Longtermism and moral regard across temporal and social distance',doi:'https://doi.org/10.1177/13684302241242115'},
-  {n:9, first:'Syropoulos',year:2024,abbr:'npj CA',   theme:'intergen', title:'The case for longtermism: Concern for the far future as a catalyst for pro-climate action',doi:'https://doi.org/10.1038/s44168-024-00110-8'},
   {n:5, first:'Syropoulos',year:2024,abbr:'Sustain.', theme:'intergen', title:'National differences in age and future-oriented indicators relate to environmental performance',doi:'https://doi.org/10.3390/su16010276'},
-  {n:4, first:'Law',      year:2023,abbr:'Sustain.',  theme:'intergen', title:'Why do longtermists care about protecting the environment? Underlying mechanisms of pro-climate policy support',doi:'https://doi.org/10.3390/su152416732'},
+  {n:4, first:'Law',      year:2023,abbr:'Sustain.',  theme:'intergen', title:'Why do longtermists care about protecting the environment? An investigation on the underlying mechanisms of pro-climate policy support',doi:'https://doi.org/10.3390/su152416732'},
 
-  // Embedded Morality (7)
-  {n:42,first:'Amormino', year:2026,abbr:'HSSC',      theme:'embedded', title:'Aristotle\'s intuitionist approach to morality guides a new direction in moral psychology',doi:'https://doi.org/10.1057/s41599-026-07942-1'},
+  // Embedded Morality (12)
+  {n:48,first:'McLamore', year:2025,abbr:'GPIR ip',   theme:'embedded', title:'Distrustful complacency and compliance with coronavirus prevention measures in the United States and across the world',doi:''},
+  {n:43,first:'Wu',       year:2026,abbr:'GPIR',      theme:'embedded', title:'Shifting demographics, shifting perceptions: How race and politics shape reactions to the majority-minority future',doi:'https://doi.org/10.1177/13684302261454594'},
+  {n:39,first:'Fowler',   year:2026,abbr:'Emotion',   theme:'embedded', title:'Co-imagination fosters shared emotions of future experiences',doi:'https://doi.org/10.1037/emo0001659'},
   {n:34,first:'Syropoulos',year:2026,abbr:'GPIR',     theme:'embedded', title:'Presidential candidate endorsements by scientific journals decrease trust in science especially for moderate and conservative Americans',doi:'https://doi.org/10.1177/13684302261425955'},
   {n:31,first:'Syropoulos',year:2026,abbr:'JEP',      theme:'embedded', title:'Ecological humility as a distinct moral orientation toward nature: Scale development and validation',doi:'https://doi.org/10.1016/j.jenvp.2026.102998'},
-  {n:44,first:'Wu',       year:2026,abbr:'GPIR',      theme:'embedded', title:'Shifting demographics, shifting perceptions: How race and politics shape reactions to the majority-minority future',doi:''},
-  {n:29,first:'Wu',       year:2026,abbr:'Adv Psy',   theme:'embedded', title:'The politics of well-being during democratic backsliding: How partisan affiliation and support for government actions relate to happiness',doi:''},
-  {n:13,first:'Syropoulos',year:2024,abbr:'P&C',      theme:'embedded', title:'Cultural tightness and its association with national levels of peace: Evidence from a cross-national investigation',doi:''},
+  {n:29,first:'Wu',       year:2026,abbr:'Adv Psy',   theme:'embedded', title:'The politics of well-being during democratic backsliding: How partisan affiliation and support for government actions relate to happiness and life satisfaction',doi:'https://doi.org/10.56296/aip00051'},
+  {n:24,first:'Law',      year:2025,abbr:'BJSP',      theme:'embedded', title:'People are more sceptical of others\' public virtue motivations than their own in separate (but not joint) evaluations',doi:'https://doi.org/10.1111/bjso.70014'},
+  {n:22,first:'Markowitz, D. M.',year:2025,abbr:'PNAS',theme:'embedded', title:'An exploration of basic human values in 38 million obituaries over 30 years',doi:'https://doi.org/10.1073/pnas.2510318122'},
+  {n:14,first:'Law',      year:2024,abbr:'J Med E',   theme:'embedded', title:'Artificial intelligence, existential risk and equity: The need for multigenerational bioethics',doi:'https://doi.org/10.1136/jme-2024-110583'},
+  {n:13,first:'Syropoulos',year:2024,abbr:'P&C',      theme:'embedded', title:'Cultural tightness and its association with national levels of peace: Evidence from a cross-national investigation',doi:'https://doi.org/10.1037/pac0000725'},
   {n:11,first:'Syropoulos',year:2024,abbr:'GPIR',     theme:'embedded', title:'Increased perceived safety in day-to-day life relates to critical national identification',doi:'https://doi.org/10.1177/13684302241249057'},
   {n:1, first:'Muraven',  year:2019,abbr:'OHB HM',    theme:'embedded', title:'Ego depletion: Theory and evidence',doi:''},
 
-  // Applied Research & Intervention (8)
-  {n:39,first:'Fowler',   year:2026,abbr:'Emotion',   theme:'applied',  title:'Co-imagination fosters shared emotions of future experiences',doi:'https://doi.org/10.1037/emo0001659'},
+  // Applied Research & Intervention (9)
+  {n:50,first:'Holzknecht',year:2026,abbr:'NHB',      theme:'applied',  title:'Fifty-five crowd-sourced designs assessing carbon pricing support',doi:''},
+  {n:45,first:'Tiwathia', year:2026,abbr:'Clim Chg',  theme:'applied',  title:'A majority of Americans support climate-friendly content in entertainment',doi:'https://doi.org/10.1007/s10584-026-04258-6'},
   {n:33,first:'Janssen',  year:2026,abbr:'Space P',   theme:'applied',  title:'Examining the meaning of sustainability on the Moon',doi:'https://doi.org/10.1016/j.spacepol.2026.101761'},
-  {n:20,first:'Law',      year:2025,abbr:'JEP',       theme:'applied',  title:'Responsibility for future generations and climate change mitigation: A cross-national study',doi:'https://doi.org/10.1016/j.jenvp.2025.102729'},
+  {n:27,first:'Law',      year:2025,abbr:'PSPB',      theme:'applied',  title:'Mapping and increasing Americans\' actual and perceived support for initiatives protecting future generations',doi:'https://doi.org/10.1177/01461672251384359'},
   {n:17,first:'Law',      year:2025,abbr:'COBS',      theme:'applied',  title:'Climate change is an intergenerational challenge that requires intergenerationally focused behavioral solutions',doi:'https://doi.org/10.1016/j.cobeha.2024.101467'},
   {n:16,first:'Syropoulos',year:2025,abbr:'BJSP',     theme:'applied',  title:'Responsibility to future generations: A strategy for combatting climate change across political divides',doi:'https://doi.org/10.1111/bjso.12775'},
-  {n:8, first:'Syropoulos',year:2024,abbr:'BMC Psy',  theme:'applied',  title:'Intergenerational concern relates to constructive coping and emotional reactions to climate change',doi:'https://doi.org/10.1186/s40359-024-01690-0'},
+  {n:9, first:'Syropoulos',year:2024,abbr:'npj CA',   theme:'applied',  title:'The case for longtermism: Concern for the far future as a catalyst for pro-climate action',doi:'https://doi.org/10.1038/s44168-024-00110-8'},
+  {n:8, first:'Syropoulos',year:2024,abbr:'BMC Psy',  theme:'applied',  title:'Intergenerational concern relates to constructive coping and emotional reactions to climate change via increased legacy concerns and environmental cognitive alternatives',doi:'https://doi.org/10.1186/s40359-024-01690-0'},
   {n:7, first:'Syropoulos',year:2024,abbr:'SPPS',     theme:'applied',  title:'Longtermist education interventions increase concern for and action to protect future generations',doi:'https://doi.org/10.1177/19485506241228465'},
-  {n:27,first:'Law',      year:2025,abbr:'PSPB',      theme:'applied',  title:'Mapping and increasing Americans\' actual and perceived support for initiatives protecting future generations',doi:'https://doi.org/10.1177/01461672251384359'},
 ];
 
 // ── SIDEBAR ────────────────────────────────────────────────────────────────
@@ -1449,7 +1491,7 @@ function toggleTrajectory() {
 
 let collabMode = false, activeCollaborator = null;
 const collabCounts = {};
-Object.values(COAUTHORS).forEach(arr => arr.forEach(name => { if (name !== 'Law') collabCounts[name] = (collabCounts[name] || 0) + 1; }));
+Object.values(COAUTHORS).forEach(arr => arr.forEach(name => { if (name !== 'Law' && name !== '…' && name !== 'et al.') collabCounts[name] = (collabCounts[name] || 0) + 1; }));
 const TOP_COLLABS = Object.entries(collabCounts).sort((a,b) => b[1]-a[1]).slice(0,10);
 
 function buildCollabList() {
